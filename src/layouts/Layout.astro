@@ -1,23 +1,352 @@
+---
+interface Props {
+  title?: string;
+  activePage?: "home" | "information";
+}
+
+const { title = "L&M", activePage = "home" } = Astro.props;
+---
+
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Pinyon+Script&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="icon" type="image/svg" href="/rings.svg" />
+  </head>
+
+  <body>
+    <main class="page">
+      <header class="top-header">
+        <h1 class="names">Lars &amp; Malene</h1>
+        <p class="wedding-date">11. september 2027</p>
+
+        <div class="nav-row">
+          <div class="line"></div>
+
+          <div class="nav-center">
+            <nav class="nav" aria-label="Hovednavigasjon">
+              <a href="/" class={activePage === "home" ? "active" : ""}>Hjem</a>
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSf4KKQrjfa4TAMqrxjPYayEuRd9ZH6r2JAWrv56IEIv5px8AA/viewform?usp=header"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Svar på invitasjon
+              </a>
+              <a
+                href="/information"
+                class={activePage === "information" ? "active" : ""}
+              >
+                Informasjon
+              </a>
+            </nav>
+
+            <p class="nav-deadline">Frist 1. juli</p>
+          </div>
+
+          <div class="line"></div>
+        </div>
+      </header>
+
+      <slot />
+    </main>
+  </body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+<style is:global>
+  :root {
+    --accent: #ac0000;
+    --text: #666666;
+    --muted: #d9d9d9;
+    --background: #ffffff;
+    --nav-bg: #fafafa;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background: var(--background);
+    color: var(--text);
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .nav-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .nav a {
+    font-size: 0.9rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.85rem 1rem;
+    color: #9a9a9a;
+    border: 1.5px solid transparent;
+    border-radius: 999px;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .nav a:hover {
+    color: var(--accent);
+  }
+
+  .nav a.active {
+    color: var(--accent);
+    background: transparent;
+    border-color: var(--accent);
+  }
+
+  .nav-deadline {
+    margin: 0.55rem 0 0;
+    text-align: center;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: #b07a7a;
+  }
+
+  body {
+    min-height: 100vh;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  .page {
+    min-height: 100vh;
+    background: #fff;
+  }
+
+  .top-header {
+    padding: 2.8rem 1.5rem 2.2rem;
+    text-align: center;
+  }
+
+  .names {
+    margin: 0;
+    font-family: "Pinyon Script", cursive;
+    font-size: clamp(3.4rem, 7vw, 6.5rem);
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .title {
+    margin: 0;
+    font-family: "Pinyon Script", cursive;
+    font-size: clamp(3.4rem, 7vw, 6.5rem);
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .wedding-date {
+    margin: 0.7rem 0 0;
+    font-family: "Montserrat", sans-serif;
+    font-size: clamp(1.05rem, 2vw, 1.6rem);
+    font-weight: 300;
+    color: var(--accent);
+    line-height: 1.2;
+  }
+
+  .nav-row {
+    margin: 1.8rem auto 0;
+    max-width: 1040px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .line {
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero {
+    width: 100%;
+  }
+
+  .hero img {
+    width: 100%;
+    height: min(62vh, 720px);
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .section {
+    padding: 3.5rem 1.5rem 4rem;
+    text-align: center;
+  }
+
+  .section h2 {
+    margin: 0 0 1rem;
+    font-size: clamp(1.8rem, 3.6vw, 3rem);
+    font-weight: 300;
+    color: #666666;
+  }
+
+  .section p {
+    max-width: 820px;
+    margin: 0 auto;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #777777;
+  }
+
+  .info-page {
+    padding: 2.5rem 1.5rem 5rem;
+  }
+
+  .info-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .page-subtitle {
+    margin: 0;
+    text-align: center;
+    font-family: "Pinyon Script", cursive;
+    font-size: clamp(2.4rem, 5vw, 4.2rem);
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .page-intro {
+    margin: 1rem 0 2.5rem;
+    text-align: center;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #777777;
+  }
+
+  .accordion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .info-card {
+    border: 1.5px solid #e7d7d7;
+    border-radius: 24px;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  .info-card summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 1.25rem 1.5rem;
+    font-family: "Pinyon Script", cursive;
+    font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 1;
+    text-align: center;
+  }
+
+  .info-card summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .info-card-content {
+    padding: 0 1.5rem 1.5rem;
+    text-align: center;
+  }
+
+  .info-card-content p {
+    margin: 0.4rem 0;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #777777;
+  }
+
+  .info-card[open] {
+    border-color: var(--accent);
+  }
+
+  @media (max-width: 720px) {
+    .info-page {
+      padding-top: 1.5rem;
+      padding-bottom: 3rem;
+    }
+
+    .info-card summary {
+      padding: 1rem 1.2rem;
+    }
+
+    .info-card-content {
+      padding: 0 1.2rem 1.2rem;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .top-header {
+      padding-top: 2rem;
+      padding-bottom: 1.8rem;
+    }
+
+    .nav-row {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .line {
+      display: none;
+    }
+
+    .nav {
+      gap: 0.35rem;
+    }
+
+    .nav a {
+      padding: 0.65rem 0.75rem;
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+    }
+
+    .hero img {
+      height: 42vh;
+    }
+
+    .section {
+      padding-top: 2.5rem;
+      padding-bottom: 3rem;
+    }
+  }
 </style>
