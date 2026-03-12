@@ -30,6 +30,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
       <header class="top-header">
         <h1 class="names">Lars &amp; Malene</h1>
         <p class="wedding-date">11. september 2027</p>
+        <p class="wedding-date">Opus XVI, Bergen</p>
 
         <div class="nav-row">
           <div class="line"></div>
@@ -52,7 +53,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
               </a>
             </nav>
 
-            <p class="nav-deadline">Frist 1. juli</p>
+            <p class="nav-deadline">frist 1. juli</p>
           </div>
 
           <div class="line"></div>
@@ -107,11 +108,10 @@ const { title = "L&M", activePage = "home" } = Astro.props;
     text-transform: uppercase;
     padding: 0.85rem 1rem;
     color: #9a9a9a;
-    border: 1.5px solid transparent;
-    border-radius: 999px;
+    font-weight: 300;
     transition:
       color 0.2s ease,
-      border-color 0.2s ease;
+      font-weight 0.2s ease;
   }
 
   .nav a:hover {
@@ -120,8 +120,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
 
   .nav a.active {
     color: var(--accent);
-    background: transparent;
-    border-color: var(--accent);
+    font-weight: 500;
   }
 
   .nav-deadline {
