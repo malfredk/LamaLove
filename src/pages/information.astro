@@ -1,54 +1,60 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+
+const infoItems = [
+  {
+    icon: "dresscode.svg",
+    title: "Kleskode",
+    lines: ["Smoking eller mørk dress for herrer og tilsvarende formelt for damer. Nasjonaldrakter er så klart velkommen."],
+  },
+  {
+    icon: "gift.svg",
+    title: "Gaver",
+    lines: ["Vi ønsker oss først og fremst en hyggelig feiring med våre venner og kjære. Vi forventer ingen gaver utover dette.",
+    "Dersom du allikavel ønsker å gi en gave så setter vi pris på bidrag til bryllupsreisen. Vi har òg laget en ønskeliste hos Illums."],
+  },
+  {
+    icon: "rsvp",
+    title: "Toastmaster",
+    lines: ["Vår toastmaster er Ola Nordmann. Dersom du ønsker å bidra med tale eller underholdning så kan h*n kontaktes på..."],
+  },
+  {
+    icon: "dress",
+    title: "Barn",
+    lines: ["Dette er et barnefritt arrangement. Vi håper dere har muligheten til å nyte en barnefri kveld."],
+  },
+  {
+    icon: "food",
+    lines: ["Lars + Malene"],
+  },
+  {
+    icon: "dress",
+    title: "Spørsmål",
+    lines: ["Ikke nøl med å ta kontakt med brudeparet eller toastamster dersom du har spørsmål."],
+  },
+];
 ---
 
 <Layout title="Informasjon | L&M" activePage="information">
   <section class="info-page">
     <div class="info-container">
 
-      <div class="accordion-list">
-        <details class="info-card">
-          <summary>Program</summary>
-          <div class="info-card-content">
-            <p>13:00 vielse</p>
-            <p>15:00 mingling</p>
-            <p>17:00 middag</p>
-            <p>21:00 fest</p>
-          </div>
-        </details>
+      <div class="info-grid">
+        {infoItems.map((item) => (
+          <article class="info-box">
+            <div class="info-icon">
+              <img src={item.icon} alt="" />
+            </div>
 
-        <details class="info-card">
-          <summary>Kleskode</summary>
-          <div class="info-card-content">
-            <p>Smoking eller mørk dress for herrer og tilsvarende formelt for damer. Nasjonaldrakter er så klart velkommen.</p>
-          </div>
-        </details>
+            <h3>{item.title}</h3>
 
-        <details class="info-card">
-          <summary>Gaver</summary>
-          <div class="info-card-content">
-            <p>Vi ønsker oss først og fremst en hyggelig feiring med våre venner og kjære. Vi forventer ingen gaver utover dette.</p>
-            <p>Dersom du allikavel ønsker å gi en gave så setter vi pris på bidrag til bryllupsreisen. Vi har òg laget en ønskeliste hos Illums.</p>
-          </div>
-        </details>
-
-        <details class="info-card">
-          <summary>Toastmaster</summary>
-          <div class="info-card-content">
-            <p>Vår toastmaster er Ola Nordmann. Dersom du ønsker å bidra med tale eller underholdning så kan h*n kontaktes på</p>
-            <p>telefon: 11 22 33 44</p>
-            <p>e-post: ola.nordmann@gmail.com</p>
-          </div>
-        </details>
-
-        <details class="info-card">
-          <summary>Spørsmål</summary>
-          <div class="info-card-content">
-            <p>Hva er greien med lama? Lars + Malene = lama </p>
-            <p>Kan jeg ha med barn? Dette er et barnefritt arrangement. Vi håper dere har muligheten til å nyte en barnefri kveld.</p>
-            <p>Ikke nøl med å ta kontakt med oss eller toastamster dersom du har flere spørsmål.</p>
-          </div>
-        </details>
+            <div class="info-text">
+              {item.lines.map((line) => (
+                <p>{line}</p>
+              ))}
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   </section>

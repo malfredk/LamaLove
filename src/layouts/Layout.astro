@@ -29,8 +29,6 @@ const { title = "L&M", activePage = "home" } = Astro.props;
     <main class="page">
       <header class="top-header">
         <h1 class="names">Lars &amp; Malene</h1>
-        <p class="wedding-date">11. september 2027</p>
-        <p class="wedding-date">Opus XVI, Bergen</p>
 
         <div class="nav-row">
           <div class="line"></div>
@@ -232,7 +230,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
   }
 
   .info-container {
-    max-width: 900px;
+    max-width: 1150px;
     margin: 0 auto;
   }
 
@@ -247,56 +245,59 @@ const { title = "L&M", activePage = "home" } = Astro.props;
   }
 
   .page-intro {
-    margin: 1rem 0 2.5rem;
+    margin: 1rem 0 3rem;
     text-align: center;
     font-size: 1.05rem;
     line-height: 1.8;
     color: #777777;
   }
 
-  .accordion-list {
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3.25rem 4rem;
+    align-items: start;
+  }
+
+  .info-box {
+    text-align: center;
+    padding: 0.5rem 0.5rem 0;
+  }
+
+  .info-icon {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    height: 82px;
+    margin-bottom: 0.8rem;
   }
 
-  .info-card {
-    border: 1.5px solid #e7d7d7;
-    border-radius: 24px;
-    background: #ffffff;
-    overflow: hidden;
+  .info-icon img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
   }
 
-  .info-card summary {
-    list-style: none;
-    cursor: pointer;
-    padding: 1.25rem 1.5rem;
+  .info-box h3 {
+    margin: 0 0 0.7rem;
     font-family: "Pinyon Script", cursive;
-    font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+    font-size: clamp(2rem, 3vw, 2.8rem);
     font-weight: 400;
     color: var(--accent);
     line-height: 1;
-    text-align: center;
   }
 
-  .info-card summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .info-card-content {
-    padding: 0 1.5rem 1.5rem;
-    text-align: center;
-  }
-
-  .info-card-content p {
-    margin: 0.4rem 0;
+  .info-text p {
+    margin: 0.15rem 0;
     font-size: 1rem;
-    line-height: 1.8;
+    line-height: 1.65;
     color: #777777;
   }
 
-  .info-card[open] {
-    border-color: var(--accent);
+  @media (max-width: 1000px) {
+    .info-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   @media (max-width: 720px) {
@@ -305,12 +306,18 @@ const { title = "L&M", activePage = "home" } = Astro.props;
       padding-bottom: 3rem;
     }
 
-    .info-card summary {
-      padding: 1rem 1.2rem;
+    .info-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
     }
 
-    .info-card-content {
-      padding: 0 1.2rem 1.2rem;
+    .info-icon {
+      height: 72px;
+    }
+
+    .info-icon img {
+      width: 58px;
+      height: 58px;
     }
   }
 
