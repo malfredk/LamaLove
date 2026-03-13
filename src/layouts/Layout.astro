@@ -34,20 +34,20 @@ const { title = "L&M", activePage = "home" } = Astro.props;
           <div class="line"></div>
 
           <div class="nav-center">
-            <nav class="nav" aria-label="Hovednavigasjon">
-              <a href="/" class={activePage === "home" ? "active" : ""}>Hjem</a>
+            <nav class="nav">
+              <a href="/" class={activePage === "home" ? "active" : ""}>hjem</a>
               <a
                 href="https://docs.google.com/forms/d/e/1FAIpQLSf4KKQrjfa4TAMqrxjPYayEuRd9ZH6r2JAWrv56IEIv5px8AA/viewform?usp=header"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Svar på invitasjon
+                svar på invitasjon
               </a>
               <a
                 href="/information"
                 class={activePage === "information" ? "active" : ""}
               >
-                Informasjon
+                informasjon
               </a>
             </nav>
 
@@ -110,11 +110,10 @@ const { title = "L&M", activePage = "home" } = Astro.props;
   }
 
   .nav a:hover {
-    color: var(--text);
+    font-weight: 500;
   }
 
   .nav a.active {
-    color: var(--text);
     font-weight: 500;
   }
 
