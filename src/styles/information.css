@@ -1,0 +1,77 @@
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3.25rem 4rem;
+    align-items: start;
+}
+
+.info-box {
+    text-align: center;
+    padding: 0.5rem 0.5rem 0;
+}
+
+.info-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 82px;
+    margin-bottom: 0.8rem;
+}
+
+.info-icon img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.info-box h3 {
+    margin: 0 0 0.7rem;
+    font-family: "Pinyon Script", cursive;
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1;
+}
+
+.info-text p {
+    margin: 0.15rem 0;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--text);
+}
+
+.info-page {
+    padding: 2.5rem 1.5rem 5rem;
+}
+
+.info-container {
+    max-width: 1150px;
+    margin: 0 auto;
+}
+
+@media (max-width: 1000px) {
+    .info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .info-page {
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .info-icon {
+        height: 72px;
+    }
+
+    .info-icon img {
+        width: 58px;
+        height: 58px;
+    }
+}
