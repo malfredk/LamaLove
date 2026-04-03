@@ -68,14 +68,6 @@
     font-weight: 500;
 }
 
-.nav-deadline {
-    margin: 0.55rem 0 0;
-    text-align: center;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    color: var(--text);
-}
-
 @media (max-width: 720px) {
     .top-header {
         padding-top: 2rem;
