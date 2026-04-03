@@ -3,6 +3,12 @@
     text-align: center;
 }
 
+.names-link {
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+}
+
 .names {
     margin: 0;
     font-family: "Pinyon Script", cursive;
@@ -24,15 +30,8 @@
 .nav-row {
     margin: 1.8rem auto 0;
     max-width: 1040px;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 1.5rem;
-    align-items: center;
-}
-
-.line {
-    height: 1px;
-    background: var(--text);
+    display: flex;
+    justify-content: center;
 }
 
 .nav-center {
@@ -84,12 +83,7 @@
     }
 
     .nav-row {
-        grid-template-columns: 1fr;
         gap: 1rem;
-    }
-
-    .line {
-        display: none;
     }
 
     .nav {

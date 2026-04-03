@@ -4,7 +4,7 @@ import "../styles/nav.css";
 
 interface Props {
   title?: string;
-  activePage?: "home" | "information";
+  activePage?: "home" | "information" | "timeline" | "visitor";
 }
 
 const { title = "L&M", activePage = "home" } = Astro.props;
@@ -31,14 +31,13 @@ const { title = "L&M", activePage = "home" } = Astro.props;
   <body>
     <main class="page">
       <header class="top-header">
-        <h1 class="names">Lars &amp; Malene</h1>
+        <a href="/" class="names-link" aria-label="Gå til hjem">
+          <h1 class="names">Lars &amp; Malene</h1>
+        </a>
 
         <div class="nav-row">
-          <div class="line"></div>
-
           <div class="nav-center">
             <nav class="nav">
-              <a href="/" class={activePage === "home" ? "active" : ""}>hjem</a>
               <a
                 href="https://docs.google.com/forms/d/e/1FAIpQLSf4KKQrjfa4TAMqrxjPYayEuRd9ZH6r2JAWrv56IEIv5px8AA/viewform?usp=header"
                 target="_blank"
@@ -46,18 +45,31 @@ const { title = "L&M", activePage = "home" } = Astro.props;
               >
                 svar på invitasjon
               </a>
+
               <a
                 href="/information"
                 class={activePage === "information" ? "active" : ""}
               >
                 informasjon
               </a>
+
+              <a
+                href="/timeline"
+                class={activePage === "timeline" ? "active" : ""}
+              >
+                tidsplan
+              </a>
+
+              <a
+                href="/visitor"
+                class={activePage === "visitor" ? "active" : ""}
+              >
+                tilreisende
+              </a>
             </nav>
 
             <p class="nav-deadline">frist 1. juli</p>
           </div>
-
-          <div class="line"></div>
         </div>
       </header>
 
