@@ -18,15 +18,6 @@
     line-height: 1;
 }
 
-.wedding-date {
-    margin: 0.7rem 0 0;
-    font-family: "Montserrat", sans-serif;
-    font-size: clamp(1.05rem, 2vw, 1.6rem);
-    font-weight: 300;
-    color: var(--text);
-    line-height: 1.2;
-}
-
 .nav-row {
     margin: 1.8rem auto 0;
     max-width: 1040px;
