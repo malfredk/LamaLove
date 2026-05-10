@@ -4,34 +4,35 @@ import "../styles/information.css";
 
 const infoItems = [
   {
-    icon: "dresscode.svg",
     title: "Kleskode",
-    lines: ["Smoking eller mørk dress for herrer og tilsvarende formelt for damer. Nasjonaldrakter er så klart velkommen."],
+    lines: [
+      "Smoking eller mørk dress for herrer og tilsvarende formelt for damer. Nasjonaldrakter er så klart velkommen.",
+    ],
   },
   {
-    icon: "gift.svg",
     title: "Gaver",
-    lines: ["Vi ønsker oss først og fremst en hyggelig feiring med våre venner og kjære. Vi forventer ingen gaver utover dette.",
-    "Dersom du allikavel ønsker å gi en gave så setter vi pris på bidrag til bryllupsreisen. Vi har òg laget en ønskeliste hos Illums."],
+    lines: [
+      "Vi ønsker oss først og fremst en hyggelig feiring med våre venner og kjære. Vi forventer ingen gaver utover dette.",
+      "Dersom du allikevel ønsker å gi en gave, setter vi stor pris på et bidrag til bryllupsreisen. Vi har også laget en ønskeliste hos Illums: https://www.illums.no/wishlist/123456789.",
+    ],
   },
   {
-    icon: "toast.svg",
     title: "Toastmaster",
-    lines: ["Vår toastmaster er Ola Nordmann. Dersom du ønsker å bidra med tale eller underholdning så kan h*n kontaktes på..."],
+    lines: [
+      "Vår toastmaster er Ola Nordmann. Dersom du ønsker å bidra med tale eller underholdning, kan h*n kontaktes på ...",
+    ],
   },
   {
-    icon: "drinks.svg",
     title: "Barn",
-    lines: ["Dette er et barnefritt arrangement. Vi håper dere har muligheten til å nyte en barnefri kveld."],
+    lines: [
+      "Dette er et barnefritt arrangement. Vi håper dere har muligheten til å nyte en barnefri kveld sammen med oss.",
+    ],
   },
   {
-    icon: "llama.svg",
-    lines: ["Lars + Malene"],
-  },
-  {
-    icon: "q.svg",
     title: "Spørsmål",
-    lines: ["Ikke nøl med å ta kontakt med brudeparet eller toastamster dersom du har spørsmål."],
+    lines: [
+      "Ikke nøl med å ta kontakt med brudeparet eller toastmaster dersom du har spørsmål.",
+    ],
   },
 ];
 ---
@@ -40,21 +41,21 @@ const infoItems = [
   <section class="info-page">
     <div class="info-container">
 
-      <div class="info-grid">
-        {infoItems.map((item) => (
-          <article class="info-box">
-            <div class="info-icon">
-              <img src={item.icon} alt="" />
-            </div>
+      <div class="info-list">
+        {infoItems.map((item, index) => (
+          <>
+            <article class="info-box">
+              <h3>{item.title}</h3>
 
-            <h3>{item.title}</h3>
+              <div class="info-text">
+                {item.lines.map((line) => (
+                  <p>{line}</p>
+                ))}
+              </div>
+            </article>
 
-            <div class="info-text">
-              {item.lines.map((line) => (
-                <p>{line}</p>
-              ))}
-            </div>
-          </article>
+            {index < infoItems.length - 1 && <div class="info-divider"></div>}
+          </>
         ))}
       </div>
     </div>
