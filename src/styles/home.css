@@ -1,6 +1,6 @@
 .wedding-date {
     margin: 0.7rem 0 0;
-    font-family: "Montserrat", sans-serif;
+    font-family: "Cormorant Garamond", serif;
     font-size: clamp(1.05rem, 2vw, 1.6rem);
     font-weight: 300;
     color: var(--text);

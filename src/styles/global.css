@@ -1,6 +1,6 @@
 :root {
     --text: #ac0000;
-    --background: #ffcccc;
+    --background: #FBFAF5;
 }
 
 * {
@@ -14,7 +14,7 @@ body {
     width: 100%;
     background: var(--background);
     color: var(--text);
-    font-family: "Montserrat", sans-serif;
+    font-family: "Cormorant Garamond", serif;
 }
 
 body {

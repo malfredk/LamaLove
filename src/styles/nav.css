@@ -11,7 +11,7 @@
 
 .names {
     margin: 0;
-    font-family: "Pinyon Script", cursive;
+    font-family: "Cormorant Garamond", serif;
     font-size: clamp(3.4rem, 7vw, 6.5rem);
     font-weight: 400;
     color: var(--text);
