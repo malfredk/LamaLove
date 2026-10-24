@@ -36,9 +36,12 @@ const { title, lines, photos } = Astro.props;
       </div>
       {photos.length > 1 && (
         <div class="controls" hidden>
-          <button type="button" data-previous aria-label="Forrige bilde">←</button>
-          <span data-count>1 / {photos.length}</span>
-          <button type="button" data-next aria-label="Neste bilde">→</button>
+          <button type="button" data-previous aria-label="Forrige bilde">
+            <span aria-hidden="true">←</span>
+          </button>
+          <button type="button" data-next aria-label="Neste bilde">
+            <span aria-hidden="true">→</span>
+          </button>
         </div>
       )}
     </visitor-carousel>
@@ -59,7 +62,6 @@ const { title, lines, photos } = Astro.props;
       const show = (index: number) => {
         current = (index + slides.length) % slides.length;
         slides.forEach((slide, i) => { slide.hidden = i !== current; });
-        this.querySelector("[data-count]")!.textContent = `${current + 1} / ${slides.length}`;
       };
       this.querySelector("[data-previous]")!.addEventListener("click", () => {
         window.clearInterval(this.timer);
@@ -83,19 +85,29 @@ const { title, lines, photos } = Astro.props;
 </script>
 
 <style>
-  visitor-carousel { display: block; margin-top: 1.5rem; }
+  /* These portrait photos have a 3:4 ratio; keep the controls beside their visible edges. */
+  visitor-carousel { --photo-height: clamp(260px, 65vw, 440px); display: block; position: relative; width: min(100%, calc(var(--photo-height) * 0.75 + 104px)); margin: 1.5rem auto 0; }
+  visitor-carousel:has(.controls) { padding-inline: 52px; }
   /* Reserve space for every caption so changing slides cannot move the controls. */
   .slides { display: grid; }
   figure { grid-area: 1 / 1; margin: 0; min-width: 0; }
   figure[hidden] { display: block; visibility: hidden; pointer-events: none; }
   .controls[hidden] { display: none; }
-  figure img { width: 100%; height: clamp(260px, 65vw, 440px); object-fit: contain; filter: drop-shadow(0 4px 10px rgb(0 0 0 / 18%)); }
+  figure img { width: 100%; height: var(--photo-height); object-fit: contain; filter: drop-shadow(0 4px 10px rgb(0 0 0 / 18%)); }
   figcaption { margin-top: 0.75rem; font-size: var(--page-text-size); line-height: 1.65; }
   figcaption p { margin: 0; }
   .location { display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
   .location svg { width: 1em; height: 1em; flex-shrink: 0; }
-  .controls { display: flex; justify-content: center; align-items: center; gap: 0.75rem; margin-top: 1rem; }
-  [data-count] { min-width: 5ch; text-align: center; font-variant-numeric: tabular-nums; }
-  button { color: var(--text); background: transparent; border: 1px solid currentColor; padding: 0.35rem 0.7rem; min-height: 44px; min-width: 44px; font-size: inherit; cursor: pointer; }
+  .controls { position: absolute; inset: 0 0 auto; height: var(--photo-height); display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
+  .controls button { pointer-events: auto; }
+  button { display: grid; place-items: center; color: var(--text); background: transparent; border: 0; padding: 6px; width: 44px; height: 44px; cursor: pointer; }
+  button { font-size: inherit; }
+  button span { transition: transform 160ms ease; }
+  @media (hover: hover) {
+    button:hover span { transform: scale(1.12); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    button span { transition: none; }
+  }
   button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 </style>
