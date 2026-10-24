@@ -1,3 +1,11 @@
+## Home page photos
+
+Store carousel photos in `src/assets/photos/`. Astro optimizes these images during the build.
+
+Add or remove photos directly in this folder without changing any code. Supported extensions are `.jpg`, `.jpeg`, `.png`, and `.webp` (lowercase or uppercase). Photos appear in filename order; use prefixes such as `01-`, `02-`, etc. to choose the order. Keep photos directly in the folder, rather than in subfolders.
+
+The local development server picks up changes automatically. Rebuild and redeploy the site for changes to appear on the published website.
+
 # Astro Starter Kit: Basics
 
 ```sh
