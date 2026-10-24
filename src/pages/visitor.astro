@@ -1,6 +1,19 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import InfoBoxes from "../components/InfoBoxes.astro";
+import PhotoInfoBox from "../components/PhotoInfoBox.astro";
+import ll from "../assets/bergen_photos/IMG_0140.JPG";
+import hval from "../assets/bergen_photos/IMG_0181.JPG";
+import bryggen from "../assets/bergen_photos/IMG_1822.JPG";
+import kode from "../assets/bergen_photos/IMG_5700.JPG";
+
+// Each photo is captioned with its location.
+const bergenPhotos = [
+  { src: ll, location: "Lille Lungegårdsvannet" },
+  { src: hval, location: "Naturhistorisk museum" },
+  { src: bryggen, location: "Bryggen" },
+  { src: kode, location: "Kode museum, Rasmus Meyer" },
+];
 
 const visitorItems = [
   {
@@ -26,5 +39,7 @@ const visitorItems = [
 ---
 
 <Layout title="L&M" activePage="visitor">
-  <InfoBoxes items={visitorItems} />
+  <InfoBoxes items={visitorItems.slice(0, -1)}>
+    <PhotoInfoBox {...visitorItems[visitorItems.length - 1]} photos={bergenPhotos} />
+  </InfoBoxes>
 </Layout>
