@@ -78,7 +78,7 @@ img {
     background-color: var(--background);
     background-image:
         linear-gradient(var(--page-tint, transparent), var(--page-tint, transparent)),
-        url("../assets/background.png");
+        url("../assets/background_red.png");
     background-position: center top;
     background-size: 100% auto;
     background-repeat: repeat-y;
