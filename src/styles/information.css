@@ -15,7 +15,7 @@
 .info-title {
     margin: 0;
     font-size: clamp(4rem, 9vw, 6.8rem);
-    font-weight: 300;
+    font-weight: 400;
     line-height: 0.95;
     letter-spacing: 0.01em;
     color: var(--text);
@@ -57,7 +57,7 @@
     margin: 0.35rem 0;
     font-size: var(--page-text-size);
     line-height: 1.65;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--text);
 }
 

@@ -39,7 +39,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
   <body style={`--page-background-image: url("${background.src}")`}>
     <main class:list={["page", { "page--home": activePage === "home" }]}>
       <header class="top-header">
-        <a href="/" class="names-link" aria-label="Gå til hjem">
+        <a href="/" class="names-link" aria-label="Gå til hjem" aria-current={activePage === "home" ? "page" : undefined}>
           <h1 class="names">Lars &amp; Malene</h1>
         </a>
 
@@ -64,6 +64,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
               <a
                 href="/information"
                 class={activePage === "information" ? "active" : ""}
+                aria-current={activePage === "information" ? "page" : undefined}
               >
                 <span>informasjon</span>
                 <span class="nav-width-reserve" aria-hidden="true"
@@ -74,6 +75,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
               <a
                 href="/timeline"
                 class={activePage === "timeline" ? "active" : ""}
+                aria-current={activePage === "timeline" ? "page" : undefined}
               >
                 <span>program</span>
                 <span class="nav-width-reserve" aria-hidden="true">program</span
@@ -83,6 +85,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
               <a
                 href="/visitor"
                 class={activePage === "visitor" ? "active" : ""}
+                aria-current={activePage === "visitor" ? "page" : undefined}
               >
                 <span>tilreisende</span>
                 <span class="nav-width-reserve" aria-hidden="true"
