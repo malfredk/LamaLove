@@ -48,15 +48,25 @@
 }
 
 .nav a {
+    display: grid;
+    text-align: center;
     font-size: var(--nav-text-size);
     letter-spacing: var(--nav-letter-spacing);
     text-transform: uppercase;
     padding: 0.85rem 1rem;
     color: var(--text);
     font-weight: 300;
-    transition:
-        color 0.2s ease,
-        font-weight 0.2s ease;
+    transition: color 0.2s ease;
+}
+
+.nav a > span {
+    grid-area: 1 / 1;
+}
+
+/* Reserve the heavier label's width without duplicating accessible text. */
+.nav a .nav-width-reserve {
+    visibility: hidden;
+    font-weight: 500;
 }
 
 .nav a:hover {

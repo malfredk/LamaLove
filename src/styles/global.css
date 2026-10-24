@@ -13,6 +13,11 @@
     box-sizing: border-box;
 }
 
+html {
+    /* Keep the content width consistent on short and scrollable pages. */
+    scrollbar-gutter: stable;
+}
+
 html,
 body {
     margin: 0;

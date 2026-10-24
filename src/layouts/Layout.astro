@@ -41,28 +41,32 @@ const { title = "L&M", activePage = "home" } = Astro.props;
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                svar på invitasjon
+                <span>svar på invitasjon</span>
+                <span class="nav-width-reserve" aria-hidden="true">svar på invitasjon</span>
               </a>
 
               <a
                 href="/information"
                 class={activePage === "information" ? "active" : ""}
               >
-                informasjon
+                <span>informasjon</span>
+                <span class="nav-width-reserve" aria-hidden="true">informasjon</span>
               </a>
 
               <a
                 href="/timeline"
                 class={activePage === "timeline" ? "active" : ""}
               >
-                program
+                <span>program</span>
+                <span class="nav-width-reserve" aria-hidden="true">program</span>
               </a>
 
               <a
                 href="/visitor"
                 class={activePage === "visitor" ? "active" : ""}
               >
-                tilreisende
+                <span>tilreisende</span>
+                <span class="nav-width-reserve" aria-hidden="true">tilreisende</span>
               </a>
             </nav>
           </div>
