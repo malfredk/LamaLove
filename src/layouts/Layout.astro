@@ -1,6 +1,16 @@
 ---
 import "../styles/global.css";
 import "../styles/nav.css";
+import { ClientRouter } from "astro:transitions";
+import { getImage } from "astro:assets";
+import backgroundSource from "../assets/background_red.png";
+
+const background = await getImage({
+  src: backgroundSource,
+  width: Math.min(backgroundSource.width, 1920),
+  format: "webp",
+  quality: 85,
+});
 
 interface Props {
   title?: string;
@@ -11,12 +21,14 @@ const { title = "L&M", activePage = "home" } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="no">
+<html lang="no" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <ClientRouter fallback="swap" />
+    <link rel="preload" as="image" href={background.src} fetchpriority="high" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,7 +36,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
     <link rel="icon" type="image/svg" href="/rings.svg" />
   </head>
 
-  <body>
+  <body style={`--page-background-image: url("${background.src}")`}>
     <main class:list={["page", { "page--home": activePage === "home" }]}>
       <header class="top-header">
         <a href="/" class="names-link" aria-label="Gå til hjem">

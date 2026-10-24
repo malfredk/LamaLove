@@ -10,7 +10,7 @@
     --text: #cd0000;
     --background: #FBFAF5;
     /* Shared cream treatment for panels, the header, and the Home overlay. */
-    --cream-opacity: 90%;
+    --cream-opacity: 85%;
     --translucent-cream: color-mix(in srgb, var(--background) var(--cream-opacity), transparent);
 }
 
@@ -78,7 +78,7 @@ img {
     background-color: var(--background);
     background-image:
         linear-gradient(var(--page-tint, transparent), var(--page-tint, transparent)),
-        url("../assets/background_red.png");
+        var(--page-background-image);
     background-position: center top;
     background-size: 100% auto;
     background-repeat: repeat-y;
