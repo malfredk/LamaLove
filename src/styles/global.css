@@ -1,5 +1,9 @@
+/* Change the font import and --font-family here to update the entire site. */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap");
+
 :root {
-    --text: #ac0000;
+    --font-family: "Cormorant Garamond", serif;
+    --text: #dd0000;
     --background: #FBFAF5;
 }
 
@@ -14,7 +18,14 @@ body {
     width: 100%;
     background: var(--background);
     color: var(--text);
-    font-family: "Cormorant Garamond", serif;
+    font-family: var(--font-family);
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
 }
 
 body {
