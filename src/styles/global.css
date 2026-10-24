@@ -9,6 +9,9 @@
     --page-subtitle-spacing: 0.14em;
     --text: #cd0000;
     --background: #FBFAF5;
+    /* Shared cream treatment for panels, the header, and the Home overlay. */
+    --cream-opacity: 90%;
+    --translucent-cream: color-mix(in srgb, var(--background) var(--cream-opacity), transparent);
 }
 
 * {
@@ -71,13 +74,22 @@ img {
 
 .page {
     min-height: 100vh;
-    background: var(--background);
+    /* Keep image scale consistent across pages and scroll with the content. */
+    background-color: var(--background);
+    background-image:
+        linear-gradient(var(--page-tint, transparent), var(--page-tint, transparent)),
+        url("../assets/background.png");
+    background-position: center top;
+    background-size: 100% auto;
+    background-repeat: repeat-y;
 }
 
-/* Match image scale and starting position across pages while scrolling naturally. */
-.info-page,
-.timeline-page {
-    background: var(--background) url("../assets/background.jpg") center top / 100% auto repeat-y scroll;
+.page--home {
+    --page-tint: var(--translucent-cream);
+}
+
+.page--home .top-header {
+    background: transparent;
 }
 
 .hero {

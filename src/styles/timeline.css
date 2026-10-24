@@ -1,5 +1,4 @@
 .timeline-page {
-    --timeline-box-opacity: 90%;
     padding: 4rem 1.5rem 6rem;
 }
 
@@ -7,7 +6,7 @@
     max-width: 700px;
     margin: 0 auto;
     padding: 2.5rem 2rem;
-    background: color-mix(in srgb, var(--background) var(--timeline-box-opacity), transparent);
+    background: var(--translucent-cream);
 }
 
 .timeline-day + .timeline-day {

@@ -25,13 +25,15 @@ const { title = "L&M", activePage = "home" } = Astro.props;
   </head>
 
   <body>
-    <main class="page">
+    <main class:list={["page", { "page--home": activePage === "home" }]}>
       <header class="top-header">
         <a href="/" class="names-link" aria-label="Gå til hjem">
           <h1 class="names">Lars &amp; Malene</h1>
         </a>
 
-        <p class="wedding-date"><time datetime="2027-09-04">4. september 2027</time></p>
+        <p class="wedding-date">
+          <time datetime="2027-09-04">4. september 2027</time>
+        </p>
 
         <div class="nav-row">
           <div class="nav-center">
@@ -42,7 +44,9 @@ const { title = "L&M", activePage = "home" } = Astro.props;
                 rel="noopener noreferrer"
               >
                 <span>svar på invitasjon</span>
-                <span class="nav-width-reserve" aria-hidden="true">svar på invitasjon</span>
+                <span class="nav-width-reserve" aria-hidden="true"
+                  >svar på invitasjon</span
+                >
               </a>
 
               <a
@@ -50,7 +54,9 @@ const { title = "L&M", activePage = "home" } = Astro.props;
                 class={activePage === "information" ? "active" : ""}
               >
                 <span>informasjon</span>
-                <span class="nav-width-reserve" aria-hidden="true">informasjon</span>
+                <span class="nav-width-reserve" aria-hidden="true"
+                  >informasjon</span
+                >
               </a>
 
               <a
@@ -58,7 +64,8 @@ const { title = "L&M", activePage = "home" } = Astro.props;
                 class={activePage === "timeline" ? "active" : ""}
               >
                 <span>program</span>
-                <span class="nav-width-reserve" aria-hidden="true">program</span>
+                <span class="nav-width-reserve" aria-hidden="true">program</span
+                >
               </a>
 
               <a
@@ -66,7 +73,9 @@ const { title = "L&M", activePage = "home" } = Astro.props;
                 class={activePage === "visitor" ? "active" : ""}
               >
                 <span>tilreisende</span>
-                <span class="nav-width-reserve" aria-hidden="true">tilreisende</span>
+                <span class="nav-width-reserve" aria-hidden="true"
+                  >tilreisende</span
+                >
               </a>
             </nav>
           </div>

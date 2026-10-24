@@ -2,6 +2,7 @@
     --nav-text-size: 0.9rem;
     --nav-letter-spacing: 0.22em;
     padding: 2.8rem 1.5rem 2.2rem;
+    background: var(--translucent-cream);
     text-align: center;
 }
 

@@ -1,6 +1,4 @@
 .info-page {
-    /* Lower this percentage for more transparent cream panels. */
-    --info-box-opacity: 90%;
     padding: 4rem 1.5rem 6rem;
 }
 
@@ -42,7 +40,7 @@
     max-width: 700px;
     margin: 0 auto;
     padding: 2.5rem 2rem;
-    background: color-mix(in srgb, var(--background) var(--info-box-opacity), transparent);
+    background: var(--translucent-cream);
     text-align: center;
 }
 
