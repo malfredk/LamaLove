@@ -74,6 +74,12 @@ img {
     background: var(--background);
 }
 
+/* Match image scale and starting position across pages while scrolling naturally. */
+.info-page,
+.timeline-page {
+    background: var(--background) url("../assets/background.jpg") center top / 100% auto repeat-y scroll;
+}
+
 .hero {
     width: 100%;
 }

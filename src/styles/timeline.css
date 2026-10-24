@@ -1,7 +1,13 @@
 .timeline-page {
-    max-width: 640px;
+    --timeline-box-opacity: 90%;
+    padding: 4rem 1.5rem 6rem;
+}
+
+.timeline-day {
+    max-width: 700px;
     margin: 0 auto;
-    padding: 2.5rem 1.5rem 6rem;
+    padding: 2.5rem 2rem;
+    background: color-mix(in srgb, var(--background) var(--timeline-box-opacity), transparent);
 }
 
 .timeline-day + .timeline-day {
@@ -59,10 +65,6 @@
     z-index: 1;
 }
 
-.timeline-marker::before {
-    background: var(--background);
-}
-
 .timeline-marker__second-ring {
     margin-left: -11px;
     z-index: 2;
@@ -71,8 +73,8 @@
 .timeline-event:not(:last-child) .timeline-marker::after {
     content: "";
     position: absolute;
-    top: calc(var(--ring-top) + 8px);
-    bottom: calc(-1 * var(--ring-top) - 8px);
+    top: calc(var(--ring-top) + 16px);
+    bottom: calc(-1 * var(--ring-top));
     left: 50%;
     width: 2px;
     background: currentColor;
@@ -93,11 +95,17 @@
     line-height: 1.4;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 720px) {
     .timeline-page {
-        padding: 1.5rem 1.25rem 4rem;
+        padding: 2.5rem 1.25rem 4rem;
     }
 
+    .timeline-day {
+        padding: 2rem 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
     .timeline-event {
         grid-template-columns: 3.5rem 16px minmax(0, 1fr);
         column-gap: 0.85rem;

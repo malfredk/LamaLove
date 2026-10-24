@@ -1,4 +1,6 @@
 .info-page {
+    /* Lower this percentage for more transparent cream panels. */
+    --info-box-opacity: 90%;
     padding: 4rem 1.5rem 6rem;
 }
 
@@ -36,8 +38,11 @@
 }
 
 .info-box {
+    width: 100%;
     max-width: 700px;
     margin: 0 auto;
+    padding: 2.5rem 2rem;
+    background: color-mix(in srgb, var(--background) var(--info-box-opacity), transparent);
     text-align: center;
 }
 
@@ -56,14 +61,6 @@
     line-height: 1.65;
     font-weight: 400;
     color: var(--text);
-}
-
-.info-divider {
-    width: 72px;
-    height: 1px;
-    margin: 0 auto;
-    background: var(--text);
-    opacity: 0.45;
 }
 
 @media (max-width: 720px) {
@@ -87,6 +84,10 @@
 
     .info-list {
         gap: 2.4rem;
+    }
+
+    .info-box {
+        padding: 2rem 1.25rem;
     }
 
     .info-text p {

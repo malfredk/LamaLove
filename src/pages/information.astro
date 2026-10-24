@@ -42,8 +42,7 @@ const infoItems = [
     <div class="info-container">
 
       <div class="info-list">
-        {infoItems.map((item, index) => (
-          <>
+        {infoItems.map((item) => (
             <article class="info-box">
               <h3 class="page-subtitle">{item.title}</h3>
 
@@ -54,8 +53,6 @@ const infoItems = [
               </div>
             </article>
 
-            {index < infoItems.length - 1 && <div class="info-divider"></div>}
-          </>
         ))}
       </div>
     </div>
