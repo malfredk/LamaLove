@@ -15,8 +15,9 @@
 
 .timeline-events {
     list-style: none;
-    width: fit-content;
-    max-width: 100%;
+    /* Both days share a centered width so their marker columns align. */
+    width: 100%;
+    max-width: 24rem;
     margin: 0 auto;
     padding: 0;
 }
