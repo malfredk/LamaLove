@@ -1,6 +1,7 @@
 .photo-carousel__viewport {
     overflow: hidden;
     width: 100%;
+    padding-block: 12px;
 }
 
 .photo-carousel__track {
@@ -17,6 +18,7 @@
 }
 
 .photo-carousel__group img {
+    box-shadow: 0 4px 10px rgb(0 0 0 / 18%);
     height: clamp(240px, 45vw, 420px);
     width: auto;
     max-width: none;
