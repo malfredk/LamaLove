@@ -5,3 +5,38 @@
     color: var(--text);
     line-height: 1.2;
 }
+
+.photo-carousel__viewport {
+    overflow: hidden;
+    width: 100%;
+}
+
+.photo-carousel__track {
+    display: flex;
+    width: max-content;
+    animation: photo-scroll var(--scroll-duration) linear infinite;
+}
+
+.photo-carousel__group {
+    display: flex;
+    flex-shrink: 0;
+    gap: 12px;
+    padding-right: 12px;
+}
+
+.photo-carousel__group img {
+    height: clamp(240px, 45vw, 420px);
+    width: auto;
+    max-width: none;
+    flex-shrink: 0;
+}
+
+@keyframes photo-scroll {
+    to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .photo-carousel__track { animation: none; }
+    .photo-carousel__viewport { overflow-x: auto; }
+    .photo-carousel__group[aria-hidden="true"] { display: none; }
+}

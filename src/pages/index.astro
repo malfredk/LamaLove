@@ -1,11 +1,42 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import "../styles/home.css";
+
+const photos = Object.entries(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../photos/*.{jpg,jpeg,JPG,JPEG,png,PNG,webp,WEBP}",
+    { eager: true },
+  ),
+)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, photo]) => photo.default);
+const duration = photos.reduce((total, photo) => total + (photo.width / photo.height) * 420 + 12, 0) / 24;
 ---
 
 <Layout title="L&M" activePage="home">
-  <p class="wedding-date">4. september 2027</p>
-  <section class="hero">
-    <img src="/images/hero.jpg" alt="Lars og Malene" />
+  <section class="photo-carousel" aria-label="Bilder av Lars og Malene" style={`--scroll-duration: ${duration}s`}>
+    <div class="photo-carousel__viewport">
+      <div class="photo-carousel__track">
+        {[false, true].map((duplicate) => (
+          <div class="photo-carousel__group" aria-hidden={duplicate ? "true" : undefined}>
+            {photos.map((photo, index) => (
+              <Image
+                src={photo}
+                alt={duplicate ? "" : `Lars og Malene – bilde ${index + 1}`}
+                height={640}
+                width={Math.round((photo.width / photo.height) * 640)}
+                format="webp"
+                quality={80}
+                loading="eager"
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
   </section>
+  <p class="wedding-date">4. september 2027</p>
 </Layout>
+
