@@ -5,6 +5,8 @@
     --font-family: "Cormorant Garamond", serif;
     /* Shared body text size for page content. */
     --page-text-size: 1.18rem;
+    --page-subtitle-size: clamp(1.55rem, 2.3vw, 2rem);
+    --page-subtitle-spacing: 0.14em;
     --text: #dd0000;
     --background: #FBFAF5;
 }
@@ -43,7 +45,18 @@ body {
 @media (max-width: 720px) {
     :root {
         --page-text-size: 1.05rem;
+        --page-subtitle-size: 1.25rem;
+        --page-subtitle-spacing: 0.12em;
     }
+}
+
+.page-subtitle {
+    font-size: var(--page-subtitle-size);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: var(--page-subtitle-spacing);
+    text-transform: uppercase;
+    color: var(--text);
 }
 
 a {

@@ -11,10 +11,6 @@
 .timeline-day h2 {
     margin: 0 0 2rem;
     text-align: center;
-    font-size: var(--page-text-size);
-    text-transform: uppercase;
-    font-weight: 400;
-    line-height: 1.2;
 }
 
 .timeline-events {

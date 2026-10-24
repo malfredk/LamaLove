@@ -34,7 +34,7 @@ const days: { heading: string; events: TimelineEvent[] }[] = [
   <div class="timeline-page">
     {days.map((day, index) => (
       <section class="timeline-day" aria-labelledby={`day-${index}`}>
-        <h2 id={`day-${index}`}>{day.heading}</h2>
+        <h2 class="page-subtitle" id={`day-${index}`}>{day.heading}</h2>
         <ol class="timeline-events">
           {day.events.map((event) => (
             <li class="timeline-event">
