@@ -58,7 +58,7 @@
 
 .info-text p {
     margin: 0.35rem 0;
-    font-size: 1.18rem;
+    font-size: var(--page-text-size);
     line-height: 1.65;
     font-weight: 400;
     color: var(--text);
@@ -101,7 +101,6 @@
     }
 
     .info-text p {
-        font-size: 1.05rem;
         line-height: 1.6;
     }
 }

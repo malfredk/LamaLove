@@ -3,6 +3,8 @@
 
 :root {
     --font-family: "Cormorant Garamond", serif;
+    /* Shared body text size for page content. */
+    --page-text-size: 1.18rem;
     --text: #dd0000;
     --background: #FBFAF5;
 }
@@ -30,6 +32,13 @@ textarea {
 
 body {
     min-height: 100vh;
+    font-size: var(--page-text-size);
+}
+
+@media (max-width: 720px) {
+    :root {
+        --page-text-size: 1.05rem;
+    }
 }
 
 a {
@@ -73,7 +82,7 @@ img {
 .section p {
     max-width: 820px;
     margin: 0 auto;
-    font-size: 1.05rem;
+    font-size: var(--page-text-size);
     line-height: 1.8;
     color: var(--text);
 }

@@ -1,7 +1,55 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import "../styles/timeline.css";
+
+interface TimelineEvent {
+  time: string;
+  description: string;
+  location?: string;
+  weddingRings?: boolean;
+}
+
+// Add or remove events here. Location is optional; events appear in list order.
+const days: { heading: string; events: TimelineEvent[] }[] = [
+  {
+    heading: "fredag 3. september",
+    events: [
+      { time: "19:00", description: "uformell samling", location: "Tempo Tempo" },
+    ],
+  },
+  {
+    heading: "lørdag 4. september",
+    events: [
+      { time: "14:00", description: "vielse", location: "Opus XVI", weddingRings: true },
+      { time: "15:00", description: "snacks og mingling", location: "Charmante" },
+      { time: "17:00", description: "middag" },
+      { time: "20:00", description: "fest" },
+      { time: "01:00", description: "festen avsluttes" },
+    ],
+  },
+];
 ---
 
 <Layout title="L&M" activePage="timeline">
-
+  <div class="timeline-page">
+    {days.map((day, index) => (
+      <section class="timeline-day" aria-labelledby={`day-${index}`}>
+        <h2 id={`day-${index}`}>{day.heading}</h2>
+        <ol class="timeline-events">
+          {day.events.map((event) => (
+            <li class="timeline-event">
+              <time datetime={event.time}>{event.time}</time>
+              <span class="timeline-marker" aria-hidden="true">
+                {event.weddingRings && <span class="timeline-marker__second-ring"></span>}
+              </span>
+              <div class="timeline-details">
+                <h3>{event.description}</h3>
+                {event.location && <p>{event.location}</p>}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))}
+  </div>
 </Layout>
