@@ -1,0 +1,19 @@
+---
+import "/src/styles/info-boxes.css";
+
+interface Props {
+  title: string;
+  lines: string[];
+  class?: string;
+}
+
+const { title, lines, class: className } = Astro.props;
+---
+
+<article class:list={["info-box", className]}>
+  <h3 class="page-subtitle">{title}</h3>
+  <div class="info-text">
+    {lines.map((line) => <p>{line}</p>)}
+  </div>
+  <slot />
+</article>

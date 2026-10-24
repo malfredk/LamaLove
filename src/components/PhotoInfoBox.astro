@@ -1,7 +1,8 @@
 ---
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
-import "../styles/information.css";
+import InfoBox from "./InfoBox.astro";
+import "../styles/photo-info-box.css";
 
 interface Props {
   title: string;
@@ -11,103 +12,122 @@ interface Props {
 const { title, lines, photos } = Astro.props;
 ---
 
-<article class="info-box">
-  <h3 class="page-subtitle">{title}</h3>
-  <div class="info-text">
-    {lines.map((line) => <p>{line}</p>)}
-  </div>
-  {photos.length > 0 && (
-    <visitor-carousel aria-label={title} aria-roledescription="karusell">
-      <div class="slides" aria-live="off">
-        {photos.map((photo, index) => (
-          <figure hidden={index !== 0}>
-            <Image src={photo.src} alt={photo.location} width={900} format="webp" quality={80} />
-            <figcaption>
-              <p class="location">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <span>{photo.location}</span>
-              </p>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-      {photos.length > 1 && (
-        <div class="controls" hidden>
-          <button type="button" data-previous aria-label="Forrige bilde">
-            <span aria-hidden="true">←</span>
-          </button>
-          <button type="button" data-next aria-label="Neste bilde">
-            <span aria-hidden="true">→</span>
-          </button>
+<InfoBox title={title} lines={lines} class="photo-info-box">
+  {
+    photos.length > 0 && (
+      <visitor-carousel aria-label={title} aria-roledescription="karusell">
+        <div class="slides" aria-live="off">
+          {photos.map((photo, index) => (
+            <figure hidden={index !== 0}>
+              <Image
+                src={photo.src}
+                alt={photo.location}
+                width={900}
+                format="webp"
+                quality={80}
+              />
+              <figcaption>
+                <p class="location">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  <span>{photo.location}</span>
+                </p>
+              </figcaption>
+            </figure>
+          ))}
         </div>
-      )}
-    </visitor-carousel>
-  )}
-</article>
+        {photos.length > 1 && (
+          <div class="controls" hidden>
+            <button type="button" data-previous aria-label="Forrige bilde">
+              <span aria-hidden="true">←</span>
+            </button>
+            <button type="button" data-next aria-label="Neste bilde">
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        )}
+      </visitor-carousel>
+    )
+  }
+</InfoBox>
 
 <script>
   class VisitorCarousel extends HTMLElement {
+    private sizeObserver?: ResizeObserver;
+    private sizingFrame?: number;
+
     connectedCallback() {
+      const box = this.closest<HTMLElement>(".photo-info-box")!;
+      const image = this.querySelector("img");
+      let previousOverhead = -1;
+      const fitPhoto = () => {
+        if (!image) return;
+        // Everything except the image must also fit inside the viewport.
+        const overhead =
+          box.getBoundingClientRect().height -
+          image.getBoundingClientRect().height;
+        if (Math.abs(overhead - previousOverhead) < 0.5) return;
+        previousOverhead = overhead;
+        this.style.setProperty("--box-overhead", `${overhead}px`);
+      };
+      this.sizeObserver = new ResizeObserver(() => {
+        window.cancelAnimationFrame(this.sizingFrame);
+        this.sizingFrame = window.requestAnimationFrame(fitPhoto);
+      });
+      this.sizeObserver.observe(box);
+      fitPhoto();
       const slides = Array.from(this.querySelectorAll("figure"));
       const controls = this.querySelector<HTMLElement>(".controls");
       if (slides.length < 2 || !controls) return;
       controls.hidden = false;
       const live = this.querySelector<HTMLElement>(".slides")!;
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      );
       const paused = reducedMotion.matches;
       let current = 0;
       const show = (index: number) => {
         current = (index + slides.length) % slides.length;
-        slides.forEach((slide, i) => { slide.hidden = i !== current; });
+        slides.forEach((slide, i) => {
+          slide.hidden = i !== current;
+        });
       };
       this.querySelector("[data-previous]")!.addEventListener("click", () => {
         window.clearInterval(this.timer);
-        live.setAttribute("aria-live", "polite"); show(current - 1);
+        live.setAttribute("aria-live", "polite");
+        show(current - 1);
       });
       this.querySelector("[data-next]")!.addEventListener("click", () => {
         window.clearInterval(this.timer);
-        live.setAttribute("aria-live", "polite"); show(current + 1);
+        live.setAttribute("aria-live", "polite");
+        show(current + 1);
       });
       this.timer = window.setInterval(() => {
-        if (!paused && !document.hidden && !this.matches(":hover, :focus-within")) {
+        if (
+          !paused &&
+          !document.hidden &&
+          !this.matches(":hover, :focus-within")
+        ) {
           live.setAttribute("aria-live", "off");
           show(current + 1);
         }
       }, 5000);
     }
     timer?: number;
-    disconnectedCallback() { window.clearInterval(this.timer); }
+    disconnectedCallback() {
+      window.clearInterval(this.timer);
+      this.sizeObserver?.disconnect();
+      window.cancelAnimationFrame(this.sizingFrame);
+    }
   }
-  if (!customElements.get("visitor-carousel")) customElements.define("visitor-carousel", VisitorCarousel);
+  if (!customElements.get("visitor-carousel"))
+    customElements.define("visitor-carousel", VisitorCarousel);
 </script>
-
-<style>
-  /* These portrait photos have a 3:4 ratio; keep the controls beside their visible edges. */
-  visitor-carousel { --photo-height: clamp(260px, 65vw, 440px); display: block; position: relative; width: min(100%, calc(var(--photo-height) * 0.75 + 104px)); margin: 1.5rem auto 0; }
-  visitor-carousel:has(.controls) { padding-inline: 52px; }
-  /* Reserve space for every caption so changing slides cannot move the controls. */
-  .slides { display: grid; }
-  figure { grid-area: 1 / 1; margin: 0; min-width: 0; }
-  figure[hidden] { display: block; visibility: hidden; pointer-events: none; }
-  .controls[hidden] { display: none; }
-  figure img { width: 100%; height: var(--photo-height); object-fit: contain; filter: drop-shadow(0 4px 10px rgb(0 0 0 / 18%)); }
-  figcaption { margin-top: 0.75rem; font-size: var(--page-text-size); line-height: 1.65; }
-  figcaption p { margin: 0; }
-  .location { display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
-  .location svg { width: 1em; height: 1em; flex-shrink: 0; }
-  .controls { position: absolute; inset: 0 0 auto; height: var(--photo-height); display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
-  .controls button { pointer-events: auto; }
-  button { display: grid; place-items: center; color: var(--text); background: transparent; border: 0; padding: 6px; width: 44px; height: 44px; cursor: pointer; }
-  button { font-size: inherit; }
-  button span { transition: transform 160ms ease; }
-  @media (hover: hover) {
-    button:hover span { transform: scale(1.12); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    button span { transition: none; }
-  }
-  button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
-</style>

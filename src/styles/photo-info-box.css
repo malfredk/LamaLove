@@ -1,0 +1,114 @@
+.photo-info-box {
+    container-type: inline-size;
+}
+
+/* These portrait photos have a 3:4 ratio; keep controls beside their visible edges. */
+.photo-info-box visitor-carousel {
+    --photo-height: max(0px, min(calc((100cqw - 56px) * 4 / 3), calc(100svh - var(--box-overhead, 18rem) - 32px)));
+    display: block;
+    position: relative;
+    width: min(calc(100% + 32px), calc(var(--photo-height) * 3 / 4 + 88px));
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 1.5rem 0 0;
+}
+
+.photo-info-box visitor-carousel:has(.controls) {
+    padding-inline: 44px;
+}
+
+/* Reserve space for every caption so changing slides cannot move the controls. */
+.photo-info-box .slides {
+    display: grid;
+}
+
+.photo-info-box figure {
+    grid-area: 1 / 1;
+    margin: 0;
+    min-width: 0;
+}
+
+.photo-info-box figure[hidden] {
+    display: block;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.photo-info-box .controls[hidden] {
+    display: none;
+}
+
+.photo-info-box figure img {
+    width: 100%;
+    height: var(--photo-height);
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgb(0 0 0 / 18%));
+}
+
+.photo-info-box figcaption {
+    margin-top: 0.75rem;
+    font-size: var(--page-text-size);
+    line-height: 1.65;
+}
+
+.photo-info-box figcaption p {
+    margin: 0;
+}
+
+.photo-info-box .location {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.photo-info-box .location svg {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+}
+
+.photo-info-box .controls {
+    position: absolute;
+    inset: 0 0 auto;
+    height: var(--photo-height);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+}
+
+.photo-info-box button {
+    display: grid;
+    place-items: center;
+    color: var(--text);
+    background: transparent;
+    border: 0;
+    padding: 6px;
+    width: 44px;
+    height: 44px;
+    font-size: inherit;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.photo-info-box button span {
+    transition: transform 160ms ease;
+}
+
+.photo-info-box button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+@media (hover: hover) {
+    .photo-info-box button:hover span {
+        transform: scale(1.12);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .photo-info-box button span {
+        transition: none;
+    }
+}

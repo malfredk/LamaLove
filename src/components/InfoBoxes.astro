@@ -1,5 +1,6 @@
 ---
-import "../styles/information.css";
+import InfoBox from "./InfoBox.astro";
+import "/src/styles/info-boxes.css";
 
 interface Props {
   items: { title: string; lines: string[] }[];
@@ -11,18 +12,7 @@ const { items } = Astro.props;
 <section class="info-page">
   <div class="info-container">
     <div class="info-list">
-      {
-        items.map((item) => (
-          <article class="info-box">
-            <h3 class="page-subtitle">{item.title}</h3>
-            <div class="info-text">
-              {item.lines.map((line) => (
-                <p>{line}</p>
-              ))}
-            </div>
-          </article>
-        ))
-      }
+      {items.map((item) => <InfoBox {...item} />)}
       <slot />
     </div>
   </div>
