@@ -4,27 +4,28 @@ import "../styles/timeline.css";
 
 interface TimelineEvent {
   time: string;
-  description: string;
+  description?: string;
   location?: string;
+  address?: string;
   weddingRings?: boolean;
 }
 
-// Add or remove events here. Location is optional; events appear in list order.
+// Add or remove events here. Only time is required; events appear in list order.
 const days: { heading: string; events: TimelineEvent[] }[] = [
   {
     heading: "fredag",
     events: [
-      { time: "19:00", description: "uformell samling", location: "Tempo Tempo" },
+      { time: "19:00", description: "Uformell frivillig samling", location: "Tempo Tempo", address: "Domkirkegaten 6A, 5017 Bergen" },
     ],
   },
   {
     heading: "lørdag",
     events: [
-      { time: "14:00", description: "vielse", location: "Opus XVI", weddingRings: true },
-      { time: "15:00", description: "snacks og mingling", location: "Charmante" },
-      { time: "17:00", description: "middag" },
-      { time: "20:00", description: "fest" },
-      { time: "01:00", description: "festen avsluttes" },
+      { time: "14:00", description: "Vielse", location: "Opus XVI", address: "Vågsallmenningen 16, 5014 Bergen", weddingRings: true },
+      { time: "15:00", description: "Aperitiff", location: "Charmante", address: "Skostredet 14, 5017 Bergen" },
+      { time: "17:00", description: "Middag" },
+      { time: "20:00", description: "Fest" },
+      { time: "01:00" },
     ],
   },
 ];
@@ -43,8 +44,9 @@ const days: { heading: string; events: TimelineEvent[] }[] = [
                 {event.weddingRings && <span class="timeline-marker__second-ring"></span>}
               </span>
               <div class="timeline-details">
-                <h3>{event.description}</h3>
+                {event.description && <h3>{event.description}</h3>}
                 {event.location && <p>{event.location}</p>}
+                {event.address && <p>{event.address}</p>}
               </div>
             </li>
           ))}
