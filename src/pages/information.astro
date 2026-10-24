@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import InfoBoxes from "../components/InfoBoxes.astro";
+import InfoBox from "../components/InfoBox.astro";
 
 const infoItems = [
   {
@@ -30,13 +31,31 @@ const infoItems = [
     title: "Spørsmål",
     lines: ["Ikke nøl med å ta kontakt med brudeparet dersom du har spørsmål."],
   },
-  {
-    title: "Kontakt",
-    lines: ["Malene: 41 65 15 19", "Lars: 94 47 29 68"],
-  },
+];
+
+const contacts = [
+  { name: "Malene", phone: "41 65 15 19", email: "malenekf95@gmail.com" },
+  { name: "Lars", phone: "94 47 29 68", email: "larsveggum@hotmail.com" },
 ];
 ---
 
 <Layout title="L&M" activePage="information">
-  <InfoBoxes items={infoItems} />
+  <InfoBoxes items={infoItems}>
+    <InfoBox title="Kontakt" lines={[]}>
+      <Fragment slot="text">
+        {
+          contacts.map((contact) => (
+            <p>
+              {contact.name}:{"\u00A0\u00A0 "}
+              <a href={`tel:+47${contact.phone.replaceAll(" ", "")}`}>
+                {contact.phone}
+              </a>
+              ,{"\u00A0\u00A0 "}
+              <a href={`mailto:${contact.email}`}>{contact.email}</a>
+            </p>
+          ))
+        }
+      </Fragment>
+    </InfoBox>
+  </InfoBoxes>
 </Layout>

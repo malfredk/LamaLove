@@ -40,8 +40,21 @@
     color: var(--text);
 }
 
-.info-text p + p {
+.info-text p+p {
     margin-top: 0.5lh;
+}
+
+.info-text a {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.info-text a[href^="tel:"] {
+    white-space: nowrap;
+}
+
+.info-text a[href^="mailto:"] {
+    overflow-wrap: anywhere;
 }
 
 @media (max-width: 720px) {
