@@ -1,13 +1,23 @@
 .photo-carousel__viewport {
-    overflow: hidden;
+    display: block;
+    overflow-x: auto;
     width: 100%;
     padding-block: 12px;
 }
 
+.photo-carousel__viewport[data-ready] {
+    overflow: hidden;
+    touch-action: pan-y pinch-zoom;
+    cursor: grab;
+    user-select: none;
+}
+
+.photo-carousel__viewport[data-dragging] { cursor: grabbing; }
+.photo-carousel__viewport:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+
 .photo-carousel__track {
     display: flex;
     width: max-content;
-    animation: photo-scroll var(--scroll-duration) linear infinite;
 }
 
 .photo-carousel__group {
@@ -23,14 +33,4 @@
     width: auto;
     max-width: none;
     flex-shrink: 0;
-}
-
-@keyframes photo-scroll {
-    to { transform: translateX(-50%); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .photo-carousel__track { animation: none; }
-    .photo-carousel__viewport { overflow-x: auto; }
-    .photo-carousel__group[aria-hidden="true"] { display: none; }
 }

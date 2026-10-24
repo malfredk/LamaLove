@@ -12,12 +12,11 @@ const photos = Object.entries(
 )
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([, photo]) => photo.default);
-const duration = photos.reduce((total, photo) => total + (photo.width / photo.height) * 420 + 12, 0) / 24;
 ---
 
 <Layout title="L&M" activePage="home">
-  <section class="photo-carousel" aria-label="Bilder av Lars og Malene" style={`--scroll-duration: ${duration}s`}>
-    <div class="photo-carousel__viewport">
+  <section class="photo-carousel" aria-label="Bilder av Lars og Malene">
+    <home-photo-carousel class="photo-carousel__viewport" tabindex="0" role="group" aria-label="Dra eller bruk piltastene for å bla i bildene">
       <div class="photo-carousel__track">
         {[false, true].map((duplicate) => (
           <div class="photo-carousel__group" aria-hidden={duplicate ? "true" : undefined}>
@@ -30,12 +29,100 @@ const duration = photos.reduce((total, photo) => total + (photo.width / photo.he
                 format="webp"
                 quality={80}
                 loading="eager"
+                draggable="false"
               />
             ))}
           </div>
         ))}
       </div>
-    </div>
+    </home-photo-carousel>
   </section>
 </Layout>
+
+<script>
+  class HomePhotoCarousel extends HTMLElement {
+    private cleanup?: () => void;
+
+    connectedCallback() {
+      this.cleanup?.();
+      const track = this.querySelector<HTMLElement>(".photo-carousel__track")!;
+      const group = this.querySelector<HTMLElement>(".photo-carousel__group")!;
+      const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const events = new AbortController();
+      const { signal } = events;
+      let offset = 0;
+      let width = group.getBoundingClientRect().width;
+      let pointer: number | undefined;
+      let lastX = 0;
+      let previousTime = 0;
+      let frame = 0;
+
+      const render = () => {
+        if (width <= 0) return;
+        offset = ((offset % width) + width) % width;
+        track.style.transform = `translateX(${-offset}px)`;
+      };
+      const resize = new ResizeObserver(() => {
+        const nextWidth = group.getBoundingClientRect().width;
+        if (width > 0) offset *= nextWidth / width;
+        width = nextWidth;
+        render();
+      });
+      resize.observe(group);
+      this.dataset.ready = "";
+
+      this.addEventListener("pointerdown", (event) => {
+        if (!event.isPrimary || event.button !== 0 || pointer !== undefined) return;
+        pointer = event.pointerId;
+        lastX = event.clientX;
+        this.setPointerCapture(pointer);
+        this.dataset.dragging = "";
+      }, { signal });
+      this.addEventListener("pointermove", (event) => {
+        if (event.pointerId !== pointer) return;
+        offset -= event.clientX - lastX;
+        lastX = event.clientX;
+        render();
+      }, { signal });
+      const release = (event: PointerEvent) => {
+        if (event.pointerId !== pointer) return;
+        pointer = undefined;
+        delete this.dataset.dragging;
+      };
+      this.addEventListener("pointerup", release, { signal });
+      this.addEventListener("pointercancel", release, { signal });
+      this.addEventListener("lostpointercapture", release, { signal });
+      this.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        offset += (event.key === "ArrowRight" ? 1 : -1) * this.clientWidth * 0.6;
+        render();
+      }, { signal });
+
+      const animate = (time: number) => {
+        const elapsed = previousTime ? Math.min(time - previousTime, 50) : 0;
+        previousTime = time;
+        if (pointer === undefined && !motion.matches && !document.hidden) {
+          offset += elapsed * 0.024;
+          render();
+        }
+        frame = requestAnimationFrame(animate);
+      };
+      frame = requestAnimationFrame(animate);
+      this.cleanup = () => {
+        events.abort();
+        resize.disconnect();
+        cancelAnimationFrame(frame);
+        delete this.dataset.ready;
+        delete this.dataset.dragging;
+        track.style.removeProperty("transform");
+      };
+    }
+
+    disconnectedCallback() { this.cleanup?.(); }
+  }
+  if (!customElements.get("home-photo-carousel")) {
+    customElements.define("home-photo-carousel", HomePhotoCarousel);
+  }
+</script>
 
