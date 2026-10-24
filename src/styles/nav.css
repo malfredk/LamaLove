@@ -1,6 +1,15 @@
 .top-header {
+    --nav-text-size: 0.9rem;
+    --nav-letter-spacing: 0.22em;
     padding: 2.8rem 1.5rem 2.2rem;
     text-align: center;
+}
+
+.wedding-date {
+    margin: 0.7rem 0 0;
+    font-size: var(--page-text-size);
+    font-weight: 300;
+    line-height: 1.2;
 }
 
 .names-link {
@@ -39,8 +48,8 @@
 }
 
 .nav a {
-    font-size: 0.9rem;
-    letter-spacing: 0.22em;
+    font-size: var(--nav-text-size);
+    letter-spacing: var(--nav-letter-spacing);
     text-transform: uppercase;
     padding: 0.85rem 1rem;
     color: var(--text);
@@ -60,6 +69,8 @@
 
 @media (max-width: 720px) {
     .top-header {
+        --nav-text-size: 0.74rem;
+        --nav-letter-spacing: 0.14em;
         padding-top: 2rem;
         padding-bottom: 1.8rem;
     }
@@ -74,7 +85,5 @@
 
     .nav a {
         padding: 0.65rem 0.75rem;
-        font-size: 0.74rem;
-        letter-spacing: 0.14em;
     }
 }
