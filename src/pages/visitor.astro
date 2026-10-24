@@ -1,7 +1,30 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import InfoBoxes from "../components/InfoBoxes.astro";
+
+const visitorItems = [
+  {
+    title: "Hotell",
+    lines: [
+      "Informasjon om hotell og overnatting kommer.",
+    ],
+  },
+  {
+    title: "Spisesteder",
+    lines: [
+      "Vi anbefaler turen innom iskremkiosken Haillaisen dersom været tillater det.",
+      "Dersom du skal ut og spise i løpet av oppholdet så anbefaler vi blant annet Allmuen, Villani og Frk. Schmidt."
+    ],
+  },
+  {
+    title: "Attraksjoner",
+    lines: [
+        "Hvis du har litt tid til overs så har Bergen mye å by på. Eksempeler på hvordan en østlending kan nyte byen:"
+    ],
+  },
+];
 ---
 
 <Layout title="L&M" activePage="visitor">
-
+  <InfoBoxes items={visitorItems} />
 </Layout>

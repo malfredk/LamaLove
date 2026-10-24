@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import "../styles/information.css";
+import InfoBoxes from "../components/InfoBoxes.astro";
 
 const infoItems = [
   {
@@ -18,9 +18,7 @@ const infoItems = [
   },
   {
     title: "Toastmaster",
-    lines: [
-      "Informasjon om toastmaster kommer.",
-    ],
+    lines: ["Informasjon om toastmaster kommer."],
   },
   {
     title: "Barn",
@@ -30,38 +28,15 @@ const infoItems = [
   },
   {
     title: "Spørsmål",
-    lines: [
-      "Ikke nøl med å ta kontakt med brudeparet dersom du har spørsmål.",
-    ],
+    lines: ["Ikke nøl med å ta kontakt med brudeparet dersom du har spørsmål."],
   },
   {
     title: "Kontakt",
-    lines: [
-      "Malene: 41 65 15 19",
-      "Lars: 94 47 29 68",
-    ],
+    lines: ["Malene: 41 65 15 19", "Lars: 94 47 29 68"],
   },
 ];
 ---
 
 <Layout title="L&M" activePage="information">
-  <section class="info-page">
-    <div class="info-container">
-
-      <div class="info-list">
-        {infoItems.map((item) => (
-            <article class="info-box">
-              <h3 class="page-subtitle">{item.title}</h3>
-
-              <div class="info-text">
-                {item.lines.map((line) => (
-                  <p>{line}</p>
-                ))}
-              </div>
-            </article>
-
-        ))}
-      </div>
-    </div>
-  </section>
+  <InfoBoxes items={infoItems} />
 </Layout>
