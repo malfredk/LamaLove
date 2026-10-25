@@ -65,6 +65,7 @@ textarea {
 
 body {
     min-height: 100vh;
+    min-height: 100dvh;
     font-size: var(--page-text-size);
     font-weight: 500;
 }
@@ -98,6 +99,8 @@ img {
 
 .page {
     min-height: 100vh;
+    /* Follow the visible viewport as mobile browser controls open and close. */
+    min-height: 100dvh;
     /* Keep image scale consistent across pages and scroll with the content. */
     background-color: var(--background);
     background-image:
