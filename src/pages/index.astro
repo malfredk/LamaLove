@@ -54,6 +54,13 @@ const photos = Object.entries(
       let width = group.getBoundingClientRect().width;
       let pointer: number | undefined;
       let lastX = 0;
+      let lastMoveTime = 0;
+      // Speeds are in pixels per millisecond; momentum settles over about 5 seconds.
+      const cruiseSpeed = 0.024;
+      const maxSpeed = 1.2;
+      const decayTime = 1400;
+      let velocity = cruiseSpeed;
+      let swipeVelocity = 0;
       let previousTime = 0;
       let frame = 0;
 
@@ -75,17 +82,31 @@ const photos = Object.entries(
         if (!event.isPrimary || event.button !== 0 || pointer !== undefined) return;
         pointer = event.pointerId;
         lastX = event.clientX;
+        lastMoveTime = event.timeStamp;
+        swipeVelocity = 0;
+        velocity = cruiseSpeed;
         this.setPointerCapture(pointer);
         this.dataset.dragging = "";
       }, { signal });
       this.addEventListener("pointermove", (event) => {
         if (event.pointerId !== pointer) return;
-        offset -= event.clientX - lastX;
+        const distance = lastX - event.clientX;
+        const elapsed = event.timeStamp - lastMoveTime;
+        if (elapsed > 0) {
+          const speed = Math.max(-maxSpeed, Math.min(maxSpeed, distance / elapsed));
+          swipeVelocity = elapsed > 100 ? speed : swipeVelocity * 0.35 + speed * 0.65;
+        }
+        offset += distance;
         lastX = event.clientX;
+        lastMoveTime = event.timeStamp;
         render();
       }, { signal });
       const release = (event: PointerEvent) => {
         if (event.pointerId !== pointer) return;
+        // Holding still before releasing should stop the fling.
+        velocity = event.type === "pointerup" && !motion.matches
+          ? cruiseSpeed + (swipeVelocity - cruiseSpeed) * Math.exp(-(event.timeStamp - lastMoveTime) / 80)
+          : cruiseSpeed;
         pointer = undefined;
         delete this.dataset.dragging;
       };
@@ -95,6 +116,7 @@ const photos = Object.entries(
       this.addEventListener("keydown", (event) => {
         if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
         event.preventDefault();
+        velocity = cruiseSpeed;
         offset += (event.key === "ArrowRight" ? 1 : -1) * this.clientWidth * 0.6;
         render();
       }, { signal });
@@ -103,7 +125,10 @@ const photos = Object.entries(
         const elapsed = previousTime ? Math.min(time - previousTime, 50) : 0;
         previousTime = time;
         if (pointer === undefined && !motion.matches && !document.hidden) {
-          offset += elapsed * 0.024;
+          // Integrate exponential friction so the feel is independent of frame rate.
+          const decay = Math.exp(-elapsed / decayTime);
+          offset += cruiseSpeed * elapsed + (velocity - cruiseSpeed) * decayTime * (1 - decay);
+          velocity = cruiseSpeed + (velocity - cruiseSpeed) * decay;
           render();
         }
         frame = requestAnimationFrame(animate);
