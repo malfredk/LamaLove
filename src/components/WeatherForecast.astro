@@ -1,0 +1,55 @@
+---
+import savedForecast from '../data/weather.json';
+import '../styles/weather-forecast.css';
+import { WEDDING_DATE, WEDDING_DATE_LABEL, TIME_ZONE } from '../config/wedding.mjs';
+import { FALLBACK } from '../../scripts/weather.mjs';
+
+interface Forecast {
+  source: string;
+  icon: string;
+  description: string;
+  temperature?: number;
+  temperatureMin?: number;
+  temperatureMax?: number;
+  period?: string;
+  updatedAt?: string | null;
+}
+// A date change must never show a cached forecast for the previous date.
+const forecast: Forecast = savedForecast.date === WEDDING_DATE ? savedForecast : FALLBACK;
+const temperature = (value: number) => `${Math.round(value)}°`;
+const updated = forecast.updatedAt ? new Intl.DateTimeFormat('nb-NO', {
+  timeZone: TIME_ZONE, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+}).format(new Date(forecast.updatedAt)) : null;
+const rain = forecast.icon === 'rain';
+const cloud = ['cloud', 'rain', 'partly-cloudy', 'thunder', 'snow'].includes(forecast.icon);
+const sun = ['sun', 'partly-cloudy'].includes(forecast.icon);
+---
+
+<div class="weather-forecast">
+  <p class="weather-forecast__date">Bergen · <time datetime={WEDDING_DATE}>{WEDDING_DATE_LABEL}</time></p>
+  <a class="weather-forecast__icon-link" href="https://www.yr.no/nb/v%C3%A6rvarsel/daglig-tabell/1-92416/Norge/Vestland/Bergen/Bergen" aria-label="Se værvarselet for Bergen på Yr">
+  <svg class="weather-forecast__icon" viewBox="0 0 96 80" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    {sun && <g>
+      <circle cx={cloud ? 34 : 48} cy={cloud ? 26 : 38} r="13" />
+      <path transform={cloud ? 'translate(-14 -12)' : undefined} d="M48 14V7m0 62v-7M24 38h-7m62 0h-7M31 21l-5-5m44 44-5-5M31 55l-5 5m44-44-5 5" />
+    </g>}
+    {cloud && <path d="M25 55a13 13 0 0 1-1-26 21 21 0 0 1 40-2 14 14 0 1 1 7 28H25Z" />}
+    {rain && <path d="m34 63-4 8m20-8-4 8m20-8-4 8" />}
+    {forecast.icon === 'thunder' && <path d="m51 56-9 12h10l-8 10" />}
+    {forecast.icon === 'snow' && <g><path d="M32 63v10m-5-5h10m19-5v10m-5-5h10" /></g>}
+  </svg>
+  </a>
+  {forecast.source !== 'fallback' && <p class="weather-forecast__description">{forecast.description}</p>}
+  {forecast.source === 'locationforecast' && <>
+    <p>Ettermiddag · kl. {forecast.period}</p>
+    {forecast.temperature !== undefined && <p class="weather-forecast__temperature">{temperature(forecast.temperature)}</p>}
+  </>}
+  {forecast.source === 'subseasonal' && <>
+    {forecast.temperatureMin !== undefined && forecast.temperatureMax !== undefined && <p class="weather-forecast__temperature">{temperature(forecast.temperatureMin)} til {temperature(forecast.temperatureMax)}</p>}
+    <p class="weather-forecast__note">Langtidsvarsel for dagen – fortsatt usikkert.</p>
+  </>}
+  {forecast.source !== 'fallback' && <p class="weather-forecast__note">
+    Værdata fra <a href="https://www.met.no/">MET Norway</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>
+    <br />Forenklet visning{updated && <> · Oppdatert {updated}</>}
+  </p>}
+</div>

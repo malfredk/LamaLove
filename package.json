@@ -6,6 +6,8 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "weather:update": "node scripts/update-weather.mjs",
+    "test:weather": "node --test scripts/weather.test.mjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",

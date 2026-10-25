@@ -1,3 +1,23 @@
+## Wedding weather
+
+The weather box is rendered as static HTML. Browsers never call MET's API.
+`npm run weather:update` saves the forecast to `src/data/weather.json`; rebuild to display it.
+
+**Change the wedding date only in `src/config/wedding.mjs` (`WEDDING_DATE`, YYYY-MM-DD).** The header, weather date label, API selection, and scheduled publishing window all derive from this value. Run `npm run weather:update` and rebuild locally, or push the config change to trigger the workflow. `src/data/weather.json` is generated data; do not edit its date manually. Cached forecasts for another wedding date are ignored.
+
+- Before the wedding date enters forecast coverage: rain illustration only.
+- Once available: Subseasonal's daily temperature range and probability of precipitation for the configured wedding date.
+- When an afternoon summary is available: Locationforecast takes priority, using a period nearest 15:00 in Europe/Oslo (preferably 12:00–18:00). Temperature is measured at the start of that period.
+
+The updater identifies this repository to MET, honours cache expiry and conditional requests, and keeps a saved forecast on transient failures. No API calls are made before wedding date minus 21 days; Locationforecast is requested from wedding date minus 10 days. After the wedding, the saved forecast for that date is retained. Raw API responses are cached in `.cache/` (not committed).
+
+`.github/workflows/pages.yml` builds and publishes GitHub Pages on pushes to `master`, manual runs, and every six hours from wedding date minus 21 days through the wedding day. It reads the same config as the site and updater. It supports both project URLs and custom domains. To activate it after pushing these changes, select **Settings → Pages → Source → GitHub Actions**. Nothing is published by local builds.
+
+GitHub may disable scheduled workflows in public repositories after 60 days without repository activity. **Check that the workflow is enabled before the final three weeks**, and run it manually once. Schedules may be delayed by GitHub; the displayed update time comes from MET. GitHub caches can be evicted, in which case a fresh request is made during the forecast window.
+
+Run `npm run test:weather` for selection, fallback, and timezone checks.
+API references: [Subseasonal](https://api.met.no/weatherapi/subseasonal/1.0/documentation), [Locationforecast](https://api.met.no/weatherapi/locationforecast/2.0/documentation), [MET terms](https://docs.api.met.no/doc/TermsOfService).
+
 ## Home page photos
 
 Store carousel photos in `src/assets/lama_photos/`. Astro optimizes these images during the build.

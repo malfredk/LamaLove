@@ -4,6 +4,7 @@ import "../styles/nav.css";
 import { ClientRouter } from "astro:transitions";
 import { getImage } from "astro:assets";
 import backgroundSource from "../assets/background.png";
+import { WEDDING_DATE, WEDDING_DATE_LABEL } from "../config/wedding.mjs";
 
 const background = await getImage({
   src: backgroundSource,
@@ -18,6 +19,7 @@ interface Props {
 }
 
 const { title = "L&M", activePage = "home" } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
 <!doctype html>
@@ -33,18 +35,18 @@ const { title = "L&M", activePage = "home" } = Astro.props;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <link rel="icon" type="image/svg" href="/rings.svg" />
+    <link rel="icon" type="image/svg" href={`${base}/rings.svg`} />
   </head>
 
   <body style={`--page-background-image: url("${background.src}")`}>
     <main class:list={["page", { "page--home": activePage === "home" }]}>
       <header class="top-header">
-        <a href="/" class="names-link" aria-label="Gå til hjem" aria-current={activePage === "home" ? "page" : undefined}>
+        <a href={`${base}/`} class="names-link" aria-label="Gå til hjem" aria-current={activePage === "home" ? "page" : undefined}>
           <h1 class="names">Lars &amp; Malene</h1>
         </a>
 
         <p class="wedding-date">
-          <time datetime="2027-09-04">4. september 2027</time>
+          <time datetime={WEDDING_DATE}>{WEDDING_DATE_LABEL}</time>
         </p>
 
         <div class="nav-row">
@@ -62,7 +64,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
               </a>
 
               <a
-                href="/information"
+                href={`${base}/information`}
                 class={activePage === "information" ? "active" : ""}
                 aria-current={activePage === "information" ? "page" : undefined}
               >
@@ -73,7 +75,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
               </a>
 
               <a
-                href="/timeline"
+                href={`${base}/timeline`}
                 class={activePage === "timeline" ? "active" : ""}
                 aria-current={activePage === "timeline" ? "page" : undefined}
               >
@@ -83,7 +85,7 @@ const { title = "L&M", activePage = "home" } = Astro.props;
               </a>
 
               <a
-                href="/visitor"
+                href={`${base}/visitor`}
                 class={activePage === "visitor" ? "active" : ""}
                 aria-current={activePage === "visitor" ? "page" : undefined}
               >
