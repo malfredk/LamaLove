@@ -25,7 +25,7 @@ const sun = ['sun', 'partly-cloudy'].includes(forecast.icon);
 ---
 
 <div class="weather-forecast">
-  <p class="weather-forecast__date">Bergen · <time datetime={WEDDING_DATE}>{WEDDING_DATE_LABEL}</time></p>
+  <p class="weather-forecast__date text-small">Bergen · <time datetime={WEDDING_DATE}>{WEDDING_DATE_LABEL}</time></p>
   <a class="weather-forecast__icon-link" href={forecastUrl} aria-label="Se værvarselet for Bergen på Yr">
   <svg class="weather-forecast__icon" viewBox="0 0 96 80" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <defs>
@@ -50,9 +50,8 @@ const sun = ['sun', 'partly-cloudy'].includes(forecast.icon);
   </>}
   {forecast.source === 'subseasonal' && <>
     {forecast.temperatureMin !== undefined && forecast.temperatureMax !== undefined && <p class="weather-forecast__temperature">{temperature(forecast.temperatureMin)} til {temperature(forecast.temperatureMax)}</p>}
-    <p class="weather-forecast__note">Langtidsvarsel for dagen – fortsatt usikkert.</p>
   </>}
-  {forecast.source !== 'fallback' && <p class="weather-forecast__note">
+  {forecast.source !== 'fallback' && <p class="weather-forecast__note text-small">
     <a href={forecastUrl} title="Forenklet værvisning basert på data fra Meteorologisk institutt (MET Norway), tilgjengelig under NLOD 2.0 og CC BY 4.0.">Værdata fra Meteorologisk institutt</a>
   </p>}
 </div>
