@@ -101,6 +101,19 @@
     transition: transform 160ms ease;
 }
 
+.photo-info-box .photo-next {
+    touch-action: pan-y pinch-zoom;
+    user-select: none;
+    display: block;
+    width: 100%;
+    height: auto;
+    padding: 0;
+}
+
+.photo-info-box .photo-next:disabled {
+    cursor: default;
+}
+
 .photo-info-box button:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
