@@ -7,7 +7,7 @@
 
 .photo-carousel__viewport[data-ready] {
     overflow: hidden;
-    touch-action: pan-y pinch-zoom;
+    touch-action: pinch-zoom;
     cursor: grab;
     user-select: none;
 }
