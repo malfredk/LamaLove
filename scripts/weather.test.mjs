@@ -2,12 +2,31 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FALLBACK, osloTime, selectForecast as select, selectLocationForecast as selectLocation, selectSubseasonalForecast as selectSubseasonal } from './weather.mjs';
 import { WEDDING_DATE, WEATHER_START, daysBefore, isForecastWindow } from '../src/config/wedding.mjs';
+import { WEATHER_MESSAGES, weatherIntroduction } from '../src/config/weather-copy.mjs';
 
 // Fixtures deliberately use a fixed date, independent of the site's configured date.
 const FIXTURE_DATE = '2027-09-04';
 const selectForecast = (location, subseasonal) => select(location, subseasonal, FIXTURE_DATE);
 const selectLocationForecast = payload => selectLocation(payload, FIXTURE_DATE);
 const selectSubseasonalForecast = payload => selectSubseasonal(payload, FIXTURE_DATE);
+
+test('weather introductions distinguish fallback, sunshine, dry clouds, and rain', () => {
+  assert.equal(weatherIntroduction(FALLBACK), WEATHER_MESSAGES.fallback);
+  for (const icon of ['cloud', 'partly-cloudy']) {
+    assert.equal(weatherIntroduction({ source: 'locationforecast', icon }), WEATHER_MESSAGES.dry);
+  }
+  assert.equal(weatherIntroduction({ source: 'locationforecast', icon: 'sun' }), WEATHER_MESSAGES.sun);
+  for (const icon of ['rain', 'thunder']) {
+    assert.equal(weatherIntroduction({ source: 'locationforecast', icon }), WEATHER_MESSAGES.rain);
+  }
+});
+
+test('long-range introductions use probability rather than the default rain icon', () => {
+  assert.equal(weatherIntroduction({ source: 'subseasonal', icon: 'rain', precipitationProbability: 15 }), WEATHER_MESSAGES.notRain);
+  assert.equal(weatherIntroduction({ source: 'subseasonal', precipitationProbability: 80 }), WEATHER_MESSAGES.rain);
+  assert.equal(weatherIntroduction({ source: 'subseasonal', description: '53% sjanse for regn' }), WEATHER_MESSAGES.rain);
+  assert.equal(weatherIntroduction({ source: 'subseasonal' }), WEATHER_MESSAGES.other);
+});
 
 const payload = (...timeseries) => ({ properties: { meta: { updated_at: '2027-08-28T10:00:00Z' }, timeseries } });
 const location = (time, hours = 6, code = 'partlycloudy_day') => ({ time, data: {

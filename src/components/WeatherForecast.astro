@@ -3,11 +3,13 @@ import savedForecast from '../data/weather.json';
 import '../styles/weather-forecast.css';
 import { WEDDING_DATE, WEDDING_DATE_LABEL } from '../config/wedding.mjs';
 import { FALLBACK } from '../../scripts/weather.mjs';
+import { weatherIntroduction } from '../config/weather-copy.mjs';
 
 interface Forecast {
   source?: string;
   icon?: string;
   description?: string;
+  precipitationProbability?: number;
   temperature?: number;
   temperatureMin?: number;
   temperatureMax?: number;
@@ -39,6 +41,7 @@ const iconViewBox = icon === 'partly-cloudy' ? '0 0 96 58'
   : '0 8 96 72';
 ---
 
+<p class="weather-introduction">{weatherIntroduction(forecast)}</p>
 <div class="weather-forecast">
   <p class="weather-forecast__date text-small"><time datetime={WEDDING_DATE}>{WEDDING_DATE_LABEL}</time>, Bergen</p>
   <a class="weather-forecast__icon-link" href={forecastUrl} aria-label="Se værvarselet for Bergen på Yr">

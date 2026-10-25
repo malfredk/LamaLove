@@ -63,6 +63,7 @@ export function selectSubseasonalForecast(payload, weddingDate = WEDDING_DATE) {
   return {
     date: weddingDate, source: 'subseasonal', icon: 'rain',
     description: `${Math.round(details.probability_of_precipitation)}% sjanse for regn`,
+    precipitationProbability: details.probability_of_precipitation,
     temperatureMin: details.air_temperature_min,
     temperatureMax: details.air_temperature_max,
     updatedAt: payload.properties.meta?.updated_at ?? null,
