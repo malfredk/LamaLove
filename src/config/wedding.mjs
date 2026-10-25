@@ -1,5 +1,5 @@
 // Change the wedding date here. Display labels and forecast windows are derived below.
-export const WEDDING_DATE = '2026-09-04';
+export const WEDDING_DATE = '2027-09-04';
 export const TIME_ZONE = 'Europe/Oslo';
 export const FORECAST_DAYS = 21;
 export const LOCATION_FORECAST_DAYS = 10;
