@@ -9,7 +9,7 @@
     background: var(--translucent-cream);
 }
 
-.timeline-day + .timeline-day {
+.timeline-day+.timeline-day {
     margin-top: 4rem;
 }
 
@@ -92,6 +92,12 @@
     margin: 0.3rem 0 0;
     font-size: inherit;
     line-height: 1.4;
+}
+
+.timeline-details a {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    overflow-wrap: anywhere;
 }
 
 @media (max-width: 720px) {

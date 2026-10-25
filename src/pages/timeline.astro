@@ -7,10 +7,12 @@ interface TimelineEvent {
   description?: string;
   location?: string;
   address?: string;
+  addressLink?: string;
   weddingRings?: boolean;
 }
 
 // Add or remove events here. Only time is required; events appear in list order.
+// Set addressLink to make an event's address clickable.
 const days: { heading: string; events: TimelineEvent[] }[] = [
   {
     heading: "fredag",
@@ -21,8 +23,8 @@ const days: { heading: string; events: TimelineEvent[] }[] = [
   {
     heading: "lørdag",
     events: [
-      { time: "14:00", description: "Vielse", location: "Opus XVI", address: "Vågsallmenningen 16, 5014 Bergen", weddingRings: true },
-      { time: "15:00", description: "Aperitiff", location: "Charmante", address: "Skostredet 14, 5017 Bergen" },
+      { time: "14:00", description: "Vielse", location: "Opus XVI", address: "Vågsallmenningen 16, 5014 Bergen", addressLink: "https://maps.app.goo.gl/hUo9V2RBUWuAWjxy9", weddingRings: true },
+      { time: "15:00", description: "Aperitiff", location: "Charmante", address: "Skostredet 14, 5017 Bergen", addressLink: "https://maps.app.goo.gl/jHG9fudPWxTiyjPL6" },
       { time: "17:00", description: "Middag" },
       { time: "20:00", description: "Fest" },
       { time: "01:00", description: "Slutt" },
@@ -46,7 +48,11 @@ const days: { heading: string; events: TimelineEvent[] }[] = [
               <div class="timeline-details">
                 {event.description && <h3>{event.description}</h3>}
                 {event.location && <p>{event.location}</p>}
-                {event.address && <p>{event.address}</p>}
+                {event.address && (
+                  <p>
+                    {event.addressLink ? <a href={event.addressLink} target="_blank" rel="noopener noreferrer">{event.address}</a> : event.address}
+                  </p>
+                )}
               </div>
             </li>
           ))}
