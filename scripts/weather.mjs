@@ -62,7 +62,7 @@ export function selectSubseasonalForecast(payload, weddingDate = WEDDING_DATE) {
       !Number.isFinite(details.air_temperature_max) || !Number.isFinite(details.probability_of_precipitation)) return null;
   return {
     date: weddingDate, source: 'subseasonal', icon: 'rain',
-    description: `${Math.round(details.probability_of_precipitation)} % sjanse for regn`,
+    description: `${Math.round(details.probability_of_precipitation)}% sjanse for regn`,
     temperatureMin: details.air_temperature_min,
     temperatureMax: details.air_temperature_max,
     updatedAt: payload.properties.meta?.updated_at ?? null,

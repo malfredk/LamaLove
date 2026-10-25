@@ -5,9 +5,9 @@ import { WEDDING_DATE, WEDDING_DATE_LABEL } from '../config/wedding.mjs';
 import { FALLBACK } from '../../scripts/weather.mjs';
 
 interface Forecast {
-  source: string;
-  icon: string;
-  description: string;
+  source?: string;
+  icon?: string;
+  description?: string;
   temperature?: number;
   temperatureMin?: number;
   temperatureMax?: number;
@@ -16,18 +16,33 @@ interface Forecast {
 }
 // A date change must never show a cached forecast for the previous date.
 const forecast: Forecast = savedForecast.date === WEDDING_DATE ? savedForecast : FALLBACK;
+const icon = forecast.icon || 'rain';
 const temperature = (value: number) => `${Math.round(value)}°`;
+const chanceOfRain = forecast.source === 'subseasonal' ? forecast.description?.replace(/\s+%/g, '%') : null;
+const temperatureText = forecast.temperature !== undefined
+  ? temperature(forecast.temperature)
+  : forecast.temperatureMin !== undefined && forecast.temperatureMax !== undefined
+    ? `${temperature(forecast.temperatureMin)} til ${temperature(forecast.temperatureMax)}`
+    : null;
+const sourceCredit = ['locationforecast', 'subseasonal'].includes(forecast.source ?? '')
+  ? 'Værdata fra Meteorologisk institutt' : null;
 const forecastUrl = 'https://www.yr.no/nb/v%C3%A6rvarsel/daglig-tabell/1-92416/Norge/Vestland/Bergen/Bergen';
 const cloudPath = 'M25 55a13 13 0 0 1-1-26 21 21 0 0 1 40-2 14 14 0 1 1 7 28H25Z';
-const rain = forecast.icon === 'rain';
-const cloud = ['cloud', 'rain', 'partly-cloudy', 'thunder', 'snow'].includes(forecast.icon);
-const sun = ['sun', 'partly-cloudy'].includes(forecast.icon);
+const rain = icon === 'rain';
+const cloud = ['cloud', 'rain', 'partly-cloudy', 'thunder', 'snow'].includes(icon);
+const sun = ['sun', 'partly-cloudy'].includes(icon);
+// Crop unused SVG space so each icon sits directly above the forecast text.
+const iconViewBox = icon === 'partly-cloudy' ? '0 0 96 58'
+  : icon === 'cloud' ? '0 8 96 50'
+  : icon === 'rain' ? '0 8 96 66'
+  : icon === 'sun' ? '0 4 96 68'
+  : '0 8 96 72';
 ---
 
 <div class="weather-forecast">
-  <p class="weather-forecast__date text-small">Bergen · <time datetime={WEDDING_DATE}>{WEDDING_DATE_LABEL}</time></p>
+  <p class="weather-forecast__date text-small"><time datetime={WEDDING_DATE}>{WEDDING_DATE_LABEL}</time>, Bergen</p>
   <a class="weather-forecast__icon-link" href={forecastUrl} aria-label="Se værvarselet for Bergen på Yr">
-  <svg class="weather-forecast__icon" viewBox="0 0 96 80" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <svg class="weather-forecast__icon" viewBox={iconViewBox} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <defs>
       <mask id="weather-sun-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="96" height="80" style="mask-type: luminance">
         <rect width="96" height="80" fill="white" stroke="none" />
@@ -36,22 +51,17 @@ const sun = ['sun', 'partly-cloudy'].includes(forecast.icon);
     </defs>
     {sun && <g mask="url(#weather-sun-mask)">
       <circle cx={cloud ? 34 : 48} cy={cloud ? 26 : 38} r="13" />
-      <path transform={cloud ? 'translate(-14 -12)' : undefined} d="M48 14V7m0 62v-7M24 38h-7m62 0h-7M31 21l-5-5m44 44-5-5M31 55l-5 5m44-44-5 5" />
+      <path d={cloud ? 'M34 8V2M16 26h-6M21 13l-5-5M47 13l5-5' : 'M48 14V7m0 62v-7M24 38h-7m62 0h-7M31 21l-5-5m44 44-5-5M31 55l-5 5m44-44-5 5'} />
     </g>}
     {cloud && <path d={cloudPath} />}
     {rain && <path d="m34 63-4 8m20-8-4 8m20-8-4 8" />}
-    {forecast.icon === 'thunder' && <path d="m51 56-9 12h10l-8 10" />}
-    {forecast.icon === 'snow' && <g><path d="M32 63v10m-5-5h10m19-5v10m-5-5h10" /></g>}
+    {icon === 'thunder' && <path d="m51 56-9 12h10l-8 10" />}
+    {icon === 'snow' && <g><path d="M32 63v10m-5-5h10m19-5v10m-5-5h10" /></g>}
   </svg>
   </a>
-  {forecast.source === 'subseasonal' && <p class="weather-forecast__description">{forecast.description}</p>}
-  {forecast.source === 'locationforecast' && <>
-    {forecast.temperature !== undefined && <p class="weather-forecast__temperature">{temperature(forecast.temperature)}</p>}
-  </>}
-  {forecast.source === 'subseasonal' && <>
-    {forecast.temperatureMin !== undefined && forecast.temperatureMax !== undefined && <p class="weather-forecast__temperature">{temperature(forecast.temperatureMin)} til {temperature(forecast.temperatureMax)}</p>}
-  </>}
-  {forecast.source !== 'fallback' && <p class="weather-forecast__note text-small">
-    <a href={forecastUrl} title="Forenklet værvisning basert på data fra Meteorologisk institutt (MET Norway), tilgjengelig under NLOD 2.0 og CC BY 4.0.">Værdata fra Meteorologisk institutt</a>
+  {chanceOfRain && <p class="weather-forecast__description">{chanceOfRain}</p>}
+  {temperatureText && <p class="weather-forecast__temperature">{temperatureText}</p>}
+  {sourceCredit && <p class="weather-forecast__note text-small">
+    <a href={forecastUrl} title="Forenklet værvisning basert på data fra Meteorologisk institutt (MET Norway), tilgjengelig under NLOD 2.0 og CC BY 4.0.">{sourceCredit}</a>
   </p>}
 </div>

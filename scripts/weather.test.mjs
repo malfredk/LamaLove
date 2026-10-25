@@ -25,7 +25,7 @@ test('fallback when wedding day is outside forecast range', () => {
 test('selects the wedding day from 21-day data without inventing sunshine', () => {
   const forecast = selectForecast(null, payload(daily('2027-09-03T00:00:00Z'), daily()));
   assert.equal(forecast.source, 'subseasonal');
-  assert.equal(forecast.description, '73 % sjanse for regn');
+  assert.equal(forecast.description, '73% sjanse for regn');
   assert.equal(forecast.temperatureMin, 11.2);
   assert.equal(forecast.icon, 'rain');
 });

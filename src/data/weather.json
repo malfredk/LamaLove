@@ -1,9 +1,9 @@
 {
-  "date": "2026-11-10",
-  "source": "subseasonal",
-  "icon": "rain",
-  "description": "53 % sjanse for regn",
-  "temperatureMin": 5.1,
-  "temperatureMax": 8.1,
-  "updatedAt": "2026-10-25T10:30:33Z"
+  "date": "2026-10-30",
+  "source": "locationforecast",
+  "icon": "partly-cloudy",
+  "description": "Lettskyet",
+  "temperature": 12,
+  "period": "13:00–19:00",
+  "updatedAt": "2026-10-25T10:31:01Z"
 }

@@ -1,8 +1,10 @@
-.weather-forecast { margin-top: 1.5rem; font-size: var(--page-text-size); line-height: 1.65; }
+.weather-forecast { display: flex; flex-direction: column; align-items: center; gap: 0; margin-top: 1.5rem; font-size: var(--page-text-size); line-height: 1.65; }
 .weather-forecast p { margin: 0; }
+.weather-forecast__description,
+.weather-forecast__temperature { font-size: var(--page-text-size); font-weight: 500; line-height: 1.65; }
 .weather-forecast__icon-link { display: block; width: fit-content; margin-inline: auto; }
 .weather-forecast__icon-link:hover { opacity: 0.75; }
 .weather-forecast__icon-link:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
-.weather-forecast__icon { display: block; width: 112px; height: auto; margin: 0 auto 0.25rem; }
-.weather-forecast .weather-forecast__note { margin-top: 1rem; line-height: 1.5; }
+.weather-forecast__icon { display: block; width: 112px; height: auto; margin: 0.2rem auto; }
+.weather-forecast .weather-forecast__note { margin-top: 0.5rem; line-height: 1.5; }
 .weather-forecast a { text-decoration: underline; text-underline-offset: 0.15em; }
