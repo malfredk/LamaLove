@@ -34,3 +34,9 @@
     max-width: none;
     flex-shrink: 0;
 }
+
+@media (max-width: 720px) {
+    .photo-carousel__group img {
+        height: clamp(276px, 51.75vw, 483px);
+    }
+}
