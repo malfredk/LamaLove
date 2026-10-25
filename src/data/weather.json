@@ -1,6 +1,9 @@
 {
-  "date": "2027-09-04",
-  "source": "fallback",
-  "icon": "rain",
-  "description": ""
+  "date": "2026-10-30",
+  "source": "locationforecast",
+  "icon": "partly-cloudy",
+  "description": "Lettskyet",
+  "temperature": 12,
+  "period": "13:00–19:00",
+  "updatedAt": "2026-10-25T10:31:01Z"
 }
