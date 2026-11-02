@@ -150,7 +150,7 @@ const { title, lines, photos } = Astro.props;
           if (!event.isPrimary || event.button !== 0) return;
           pressedAt = performance.now();
           window.clearTimeout(this.feedbackTimer);
-          hint.classList.remove("is-touch-feedback");
+          hint.classList.remove("is-feedback");
           if (event.pointerType === "touch") lastTouchTime = performance.now();
           suppressClick = false;
           hoverSuppressed = true;
@@ -165,12 +165,10 @@ const { title, lines, photos } = Astro.props;
           const dx = event.clientX - start.x;
           const dy = event.clientY - start.y;
           start = undefined;
-          if (event.pointerType === "touch") {
-            hint.classList.add("is-touch-feedback");
-            this.feedbackTimer = window.setTimeout(() => {
-              hint.classList.remove("is-touch-feedback");
-            }, Math.max(0, 300 - (performance.now() - pressedAt)) + 150);
-          }
+          hint.classList.add("is-feedback");
+          this.feedbackTimer = window.setTimeout(() => {
+            hint.classList.remove("is-feedback");
+          }, Math.max(0, 300 - (performance.now() - pressedAt)) + 150);
           hint.classList.remove("is-pressed");
           suppressClick = Math.abs(dx) > 10 || Math.abs(dy) > 10;
           if (Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy)) {
@@ -183,7 +181,7 @@ const { title, lines, photos } = Astro.props;
           start = undefined;
           suppressClick = true;
           window.clearTimeout(this.feedbackTimer);
-          hint.classList.remove("is-touch-feedback");
+          hint.classList.remove("is-feedback");
           hint.classList.remove("is-pressed", "is-hovered");
         });
         button.addEventListener("click", (event) => {

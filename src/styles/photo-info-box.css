@@ -37,7 +37,7 @@
 }
 
 .photo-info-box figure[data-leaving] figcaption {
-    animation: caption-leave 600ms ease-in-out forwards;
+    animation: caption-leave 300ms ease-in-out forwards;
 }
 
 .photo-info-box figure:not([hidden]) figcaption {
@@ -50,7 +50,7 @@
 }
 
 @keyframes caption-arrive {
-    0%, 50% { opacity: 0; }
+    0%, 25% { opacity: 0; }
     100% { opacity: 1; }
 }
 
@@ -120,8 +120,8 @@
 }
 
 .photo-info-box .navigation-hint.is-hovered::before,
-.photo-info-box .navigation-hint.is-touch-feedback::before,
-.photo-info-box .navigation-hint.is-touch-feedback span,
+.photo-info-box .navigation-hint.is-feedback::before,
+.photo-info-box .navigation-hint.is-feedback span,
 .photo-info-box .navigation-hint.is-pressed::before,
 .photo-info-box .navigation-hint.is-hovered span,
 .photo-info-box .navigation-hint.is-pressed span {
@@ -152,7 +152,7 @@
 }
 
 .photo-info-box .navigation-hint.is-pressed::before,
-.photo-info-box .navigation-hint.is-touch-feedback::before {
+.photo-info-box .navigation-hint.is-feedback::before {
     transition-duration: 300ms;
 }
 
@@ -184,7 +184,7 @@
     transition-duration: 120ms, 300ms;
 }
 
-.photo-info-box .navigation-hint.is-touch-feedback span {
+.photo-info-box .navigation-hint.is-feedback span {
     transition-duration: 120ms, 300ms;
 }
 
