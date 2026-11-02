@@ -21,9 +21,8 @@ const { title, lines, photos } = Astro.props;
             <figure hidden={index !== 0}>
               <button
                 type="button"
-                class="photo-next"
-                data-next
-                aria-label="Neste bilde"
+                class="photo-navigation"
+                aria-label="Forrige bilde på venstre tredjedel, neste bilde på resten. Bruk piltastene eller Enter."
                 disabled={photos.length < 2}
               >
               <Image
@@ -40,13 +39,13 @@ const { title, lines, photos } = Astro.props;
                 <p class="location">
                   <svg
                     viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
+                    fill="currentColor"
                     aria-hidden="true"
                   >
-                    <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
-                    <circle cx="12" cy="10" r="3" />
+                    <path
+                      fill-rule="evenodd"
+                      d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0ZM15 10a3 3 0 1 0-6 0 3 3 0 0 0 6 0Z"
+                    />
                   </svg>
                   <span>{photo.location}</span>
                 </p>
@@ -115,7 +114,7 @@ const { title, lines, photos } = Astro.props;
         live.setAttribute("aria-live", "polite");
         show(current + direction);
       };
-      this.querySelectorAll<HTMLButtonElement>(".photo-next").forEach((button) => {
+      this.querySelectorAll<HTMLButtonElement>(".photo-navigation").forEach((button) => {
         let start: { id: number; x: number; y: number } | undefined;
         let suppressClick = false;
         button.addEventListener("pointerdown", (event) => {
@@ -140,10 +139,19 @@ const { title, lines, photos } = Astro.props;
         });
         button.addEventListener("click", (event) => {
           if (suppressClick && event.detail !== 0) {
-            event.stopImmediatePropagation();
             event.preventDefault();
+            suppressClick = false;
+            return;
           }
           suppressClick = false;
+          const bounds = button.getBoundingClientRect();
+          move(event.detail === 0 || event.clientX >= bounds.left + bounds.width / 3 ? 1 : -1);
+        });
+        button.addEventListener("keydown", (event) => {
+          if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+            event.preventDefault();
+            move(event.key === "ArrowLeft" ? -1 : 1);
+          }
         });
       });
       this.querySelector("[data-previous]")!.addEventListener("click", () => {
