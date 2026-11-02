@@ -2,22 +2,18 @@
     container-type: inline-size;
 }
 
-/* These portrait photos have a 3:4 ratio; keep controls beside their visible edges. */
+/* Let the portrait photos use the available width while fitting the viewport. */
 .photo-info-box visitor-carousel {
-    --photo-height: max(0px, min(calc((100cqw - 56px) * 4 / 3), calc(100svh - var(--box-overhead, 18rem) - 32px)));
+    --photo-height: max(0px, min(calc(100cqw * 4 / 3), calc(100svh - var(--box-overhead, 18rem) - 32px)));
     display: block;
     position: relative;
-    width: min(calc(100% + 32px), calc(var(--photo-height) * 3 / 4 + 88px));
+    width: min(100%, calc(var(--photo-height) * 3 / 4));
     left: 50%;
     transform: translateX(-50%);
     margin: 1.5rem 0 0;
 }
 
-.photo-info-box visitor-carousel:has(.controls) {
-    padding-inline: 44px;
-}
-
-/* Reserve space for every caption so changing slides cannot move the controls. */
+/* Reserve caption space so changing slides cannot shift the layout. */
 .photo-info-box .slides {
     display: grid;
 }
@@ -26,21 +22,45 @@
     grid-area: 1 / 1;
     margin: 0;
     min-width: 0;
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 450ms ease-in-out, visibility 0s linear;
+    position: relative;
+    z-index: 1;
 }
 
 .photo-info-box figure[hidden] {
-    display: block;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition-delay: 0s, 450ms;
+    display: none;
 }
 
-.photo-info-box .controls[hidden] {
-    display: none;
+.photo-info-box figure[hidden][data-leaving] {
+    display: block;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.photo-info-box figure[data-leaving] figcaption {
+    animation: caption-leave 250ms ease-out forwards;
+}
+
+.photo-info-box figure:not([hidden]) figcaption {
+    animation: caption-arrive 500ms ease-in-out;
+}
+
+@keyframes caption-leave {
+    from { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
+}
+
+@keyframes caption-arrive {
+    0%, 50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.photo-info-box figure:not([hidden]) .photo-navigation {
+    animation: photo-arrive 500ms ease-in-out;
+}
+
+@keyframes photo-arrive {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .photo-info-box figure img {
@@ -48,6 +68,24 @@
     height: var(--photo-height);
     object-fit: contain;
     filter: drop-shadow(0 4px 10px rgb(0 0 0 / 18%));
+    transition: filter 2000ms ease-out;
+}
+
+/* Shift the shadow away from the highlighted edge, then restore it gently. */
+.photo-info-box visitor-carousel:has(.navigation-hint:is(.is-hovered, .is-pressed)[data-direction="next"]) img {
+    filter: drop-shadow(-8px 4px 5px rgb(0 0 0 / 18%));
+}
+
+.photo-info-box visitor-carousel:has(.navigation-hint:is(.is-hovered, .is-pressed)[data-direction="previous"]) img {
+    filter: drop-shadow(8px 4px 5px rgb(0 0 0 / 18%));
+}
+
+.photo-info-box visitor-carousel:has(.navigation-hint.is-hovered) img {
+    transition-duration: 120ms;
+}
+
+.photo-info-box visitor-carousel:has(.navigation-hint.is-pressed) img {
+    transition-duration: 0ms;
 }
 
 .photo-info-box figcaption {
@@ -73,14 +111,70 @@
     flex-shrink: 0;
 }
 
-.photo-info-box .controls {
+.photo-info-box .navigation-hint {
+    z-index: 2;
     position: absolute;
     inset: 0 0 auto;
     height: var(--photo-height);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     pointer-events: none;
+}
+
+.photo-info-box .navigation-hint.is-hovered::before,
+.photo-info-box .navigation-hint.is-pressed::before,
+.photo-info-box .navigation-hint.is-hovered span,
+.photo-info-box .navigation-hint.is-pressed span {
+    opacity: 1;
+}
+
+.photo-info-box .navigation-hint::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 0 50%;
+    opacity: 0;
+    transition: opacity 1500ms ease-out;
+    background: linear-gradient(to left, color-mix(in srgb, var(--background) 85%, transparent), transparent);
+}
+
+.photo-info-box .navigation-hint[data-direction="previous"]::before {
+    inset: 0 50% 0 0;
+    background: linear-gradient(to right, color-mix(in srgb, var(--background) 85%, transparent), transparent);
+}
+
+/* Fade in promptly; the base duration controls only the fade out. */
+.photo-info-box .navigation-hint.is-hovered::before {
+    transition-duration: 120ms;
+}
+
+.photo-info-box .navigation-hint.is-pressed::before {
+    transition-duration: 0ms;
+}
+
+.photo-info-box .navigation-hint span {
+    position: absolute;
+    top: 50%;
+    opacity: 0;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    transition: transform 120ms ease-out, opacity 400ms ease-out;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--text);
+    font-size: 1.6rem;
+    font-weight: 600;
+    text-shadow: 0 0 4px var(--background);
+    line-height: 1;
+}
+
+.photo-info-box .navigation-hint[data-direction="previous"] span {
+    left: 0.75rem;
+    right: auto;
+}
+
+.photo-info-box .navigation-hint.is-pressed span {
+    transform: translateY(calc(-50% + 2px)) scale(0.9);
+    transition-duration: 120ms, 0ms;
 }
 
 .photo-info-box button {
@@ -97,11 +191,8 @@
     pointer-events: auto;
 }
 
-.photo-info-box button span {
-    transition: transform 160ms ease;
-}
-
 .photo-info-box .photo-navigation {
+    -webkit-tap-highlight-color: transparent;
     touch-action: pan-y pinch-zoom;
     user-select: none;
     display: block;
@@ -119,16 +210,19 @@
     outline-offset: 3px;
 }
 
-@media (hover: hover) {
-    .photo-info-box button:hover span {
-        transform: scale(1.12);
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
+    .photo-info-box figure:not([hidden]) .photo-navigation {
+        animation: none;
+    }
+    .photo-info-box figure:not([hidden]) figcaption {
+        animation: none;
+    }
     .photo-info-box figure,
+    .photo-info-box figure img,
     .photo-info-box figure[hidden],
-    .photo-info-box button span {
+    .photo-info-box .navigation-hint span,
+    .photo-info-box .navigation-hint::before,
+    .photo-info-box .navigation-hint {
         transition: none;
     }
 }

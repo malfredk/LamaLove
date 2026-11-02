@@ -54,13 +54,8 @@ const { title, lines, photos } = Astro.props;
           ))}
         </div>
         {photos.length > 1 && (
-          <div class="controls" hidden>
-            <button type="button" data-previous aria-label="Forrige bilde">
-              <span aria-hidden="true">←</span>
-            </button>
-            <button type="button" data-next aria-label="Neste bilde">
-              <span aria-hidden="true">→</span>
-            </button>
+          <div class="navigation-hint" aria-hidden="true">
+            <span></span>
           </div>
         )}
       </visitor-carousel>
@@ -94,20 +89,49 @@ const { title, lines, photos } = Astro.props;
       this.sizeObserver.observe(box);
       fitPhoto();
       const slides = Array.from(this.querySelectorAll("figure"));
-      const controls = this.querySelector<HTMLElement>(".controls");
-      if (slides.length < 2 || !controls) return;
-      controls.hidden = false;
+      if (slides.length < 2) return;
+      const hint = this.querySelector<HTMLElement>(".navigation-hint")!;
+      const hintArrow = hint.querySelector("span")!;
+      const indicate = (direction: number) => {
+        hintArrow.textContent = direction < 0 ? "\u2190" : "\u2192";
+        hint.dataset.direction = direction < 0 ? "previous" : "next";
+      };
       const live = this.querySelector<HTMLElement>(".slides")!;
       const reducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       );
       const paused = reducedMotion.matches;
       let current = 0;
+      let hoverSuppressed = false;
+      let lastTouchTime = -Infinity;
+      live.addEventListener("pointermove", (event) => {
+        if (event.pointerType !== "mouse" || hoverSuppressed || performance.now() - lastTouchTime < 1000) return;
+        const bounds = live.getBoundingClientRect();
+        if (event.clientY >= bounds.top + hint.offsetHeight) {
+          hint.classList.remove("is-hovered");
+          return;
+        }
+        indicate(event.clientX < bounds.left + bounds.width / 3 ? -1 : 1);
+        hint.classList.add("is-hovered");
+      });
+      this.addEventListener("pointerleave", () => {
+        hoverSuppressed = false;
+        hint.classList.remove("is-hovered");
+      });
       const show = (index: number) => {
+        const previous = current;
         current = (index + slides.length) % slides.length;
+        window.clearTimeout(this.transitionTimer);
         slides.forEach((slide, i) => {
+          slide.removeAttribute("data-leaving");
           slide.hidden = i !== current;
         });
+        if (previous !== current && !reducedMotion.matches) {
+          slides[previous].setAttribute("data-leaving", "");
+          this.transitionTimer = window.setTimeout(() => {
+            slides[previous].removeAttribute("data-leaving");
+          }, 500);
+        }
       };
       const move = (direction: number) => {
         window.clearInterval(this.timer);
@@ -117,9 +141,18 @@ const { title, lines, photos } = Astro.props;
       this.querySelectorAll<HTMLButtonElement>(".photo-navigation").forEach((button) => {
         let start: { id: number; x: number; y: number } | undefined;
         let suppressClick = false;
+        const directionAt = (x: number) => {
+          const bounds = button.getBoundingClientRect();
+          return x < bounds.left + bounds.width / 3 ? -1 : 1;
+        };
         button.addEventListener("pointerdown", (event) => {
           if (!event.isPrimary || event.button !== 0) return;
+          if (event.pointerType === "touch") lastTouchTime = performance.now();
           suppressClick = false;
+          hoverSuppressed = true;
+          indicate(directionAt(event.clientX));
+          hint.classList.remove("is-hovered");
+          hint.classList.add("is-pressed");
           start = { id: event.pointerId, x: event.clientX, y: event.clientY };
           button.setPointerCapture(event.pointerId);
         });
@@ -128,24 +161,23 @@ const { title, lines, photos } = Astro.props;
           const dx = event.clientX - start.x;
           const dy = event.clientY - start.y;
           start = undefined;
+          hint.classList.remove("is-pressed");
           suppressClick = Math.abs(dx) > 10 || Math.abs(dy) > 10;
           if (Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy)) {
             move(dx < 0 ? 1 : -1);
+          } else if (!suppressClick) {
+            move(directionAt(event.clientX));
           }
         });
         button.addEventListener("pointercancel", () => {
           start = undefined;
           suppressClick = true;
+          hint.classList.remove("is-pressed", "is-hovered");
         });
         button.addEventListener("click", (event) => {
-          if (suppressClick && event.detail !== 0) {
-            event.preventDefault();
-            suppressClick = false;
-            return;
-          }
-          suppressClick = false;
-          const bounds = button.getBoundingClientRect();
-          move(event.detail === 0 || event.clientX >= bounds.left + bounds.width / 3 ? 1 : -1);
+          // Pointer navigation is handled once on release; retain keyboard activation.
+          event.preventDefault();
+          if (event.detail === 0 && !(event instanceof PointerEvent && event.pointerType)) move(1);
         });
         button.addEventListener("keydown", (event) => {
           if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -154,12 +186,6 @@ const { title, lines, photos } = Astro.props;
           }
         });
       });
-      this.querySelector("[data-previous]")!.addEventListener("click", () => {
-        move(-1);
-      });
-      this.querySelectorAll("[data-next]").forEach((button) => button.addEventListener("click", () => {
-        move(1);
-      }));
       this.timer = window.setInterval(() => {
         if (
           !paused &&
@@ -172,8 +198,10 @@ const { title, lines, photos } = Astro.props;
       }, 3000);
     }
     timer?: number;
+    private transitionTimer?: number;
     disconnectedCallback() {
       window.clearInterval(this.timer);
+      window.clearTimeout(this.transitionTimer);
       this.sizeObserver?.disconnect();
       window.cancelAnimationFrame(this.sizingFrame);
     }
