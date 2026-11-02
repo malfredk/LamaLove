@@ -50,6 +50,7 @@
 }
 
 .nav a {
+    text-decoration: none;
     position: relative;
     display: grid;
     text-align: center;
@@ -113,6 +114,12 @@
     -webkit-text-stroke: 0.4px currentColor;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .nav a > span:first-child::after {
+        transition: none;
+    }
+}
+
 .nav a:focus-visible {
     outline: 2px solid var(--text);
     outline-offset: 3px;
@@ -164,11 +171,5 @@
 
     .nav a {
         padding-inline: 0.4rem;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .nav a > span:first-child::after {
-        transition: none;
     }
 }

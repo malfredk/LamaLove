@@ -44,11 +44,6 @@
     margin-top: 0.5lh;
 }
 
-.info-text a {
-    text-decoration: underline;
-    text-underline-offset: 0.15em;
-}
-
 .info-text a[href^="tel:"] {
     white-space: nowrap;
 }

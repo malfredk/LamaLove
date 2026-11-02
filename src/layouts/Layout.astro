@@ -34,6 +34,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Keep the font stylesheet loaded across client-side page changes. -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap"
+    />
 
     <link rel="icon" type="image/svg" href={`${base}/rings.svg`} />
   </head>

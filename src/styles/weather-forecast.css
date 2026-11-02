@@ -8,4 +8,3 @@
 .weather-forecast__icon-link:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .weather-forecast__icon { display: block; width: 112px; height: auto; margin: 0.2rem auto; }
 .weather-forecast .weather-forecast__note { margin-top: 0.5rem; line-height: 1.5; }
-.weather-forecast a { text-decoration: underline; text-underline-offset: 0.15em; }
