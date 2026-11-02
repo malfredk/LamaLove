@@ -13,6 +13,16 @@
     margin: 1.5rem 0 0;
 }
 
+/* One stationary shadow avoids stacking shadows while photos crossfade. */
+.photo-info-box visitor-carousel::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: var(--photo-height);
+    box-shadow: 0 4px 10px rgb(0 0 0 / 18%);
+    pointer-events: none;
+}
+
 /* Reserve caption space so changing slides cannot shift the layout. */
 .photo-info-box .slides {
     display: grid;
@@ -67,25 +77,6 @@
     width: 100%;
     height: var(--photo-height);
     object-fit: contain;
-    filter: drop-shadow(0 4px 10px rgb(0 0 0 / 18%));
-    transition: filter 2000ms ease-out;
-}
-
-/* Shift the shadow away from the highlighted edge, then restore it gently. */
-.photo-info-box visitor-carousel:has(.navigation-hint:is(.is-hovered, .is-pressed)[data-direction="next"]) img {
-    filter: drop-shadow(-8px 4px 5px rgb(0 0 0 / 18%));
-}
-
-.photo-info-box visitor-carousel:has(.navigation-hint:is(.is-hovered, .is-pressed)[data-direction="previous"]) img {
-    filter: drop-shadow(8px 4px 5px rgb(0 0 0 / 18%));
-}
-
-.photo-info-box visitor-carousel:has(.navigation-hint.is-hovered) img {
-    transition-duration: 120ms;
-}
-
-.photo-info-box visitor-carousel:has(.navigation-hint.is-pressed) img {
-    transition-duration: 0ms;
 }
 
 .photo-info-box figcaption {
@@ -229,7 +220,6 @@
         animation: none;
     }
     .photo-info-box figure,
-    .photo-info-box figure img,
     .photo-info-box figure[hidden],
     .photo-info-box .navigation-hint span,
     .photo-info-box .navigation-hint::before,
