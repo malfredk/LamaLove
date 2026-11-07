@@ -6,6 +6,12 @@ Font sizes, weights, letter spacing, line spacing, and mobile adjustments live t
 
 The complete header is defined in `src/components/Header.astro`: markup, names, date, navigation, spacing, and mobile styling. `Layout.astro` renders this same component on every page. Edit `--names-*`, `--header-date-*`, `--header-nav-gap`, and `--nav-*` there to adjust the header. Its row spacing is explicit and does not depend on paragraph line height.
 
+All environments use the same Astro client-side navigation and normal browser caching. There are no development-only navigation or cache rules.
+
+Astro 7.4.7 includes the [upstream ClientRouter stylesheet fix](https://github.com/withastro/astro/pull/17612), so live style edits remain current after navigation without disabling caching. Node.js 22.23.4 or newer is required.
+
+Use `npm run dev` while editing. To test the production build locally, run `npm run build` followed by `npm run preview`; the generated `dist/` folder is also the deployment artifact. Rebuild before previewing further code changes.
+
 ## Wedding weather
 
 The weather box is rendered as static HTML. Browsers never call MET's API.

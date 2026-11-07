@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.23.4"
   },
   "scripts": {
     "weather:update": "node scripts/update-weather.mjs",
@@ -14,6 +14,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^6.0.1"
+    "astro": "^7.4.7"
   }
 }
