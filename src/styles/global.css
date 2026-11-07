@@ -2,6 +2,8 @@
 
 :root {
     --font-family: "Cormorant Garamond", serif;
+    --names-letter-spacing: 0.06em;
+    --page-text-spacing: 0.02em;
     /* Shared body text size for page content. */
     --page-text-size: 1.18rem;
     --small-text-size: calc(var(--page-text-size) * 0.75);
@@ -60,6 +62,7 @@ input,
 select,
 textarea {
     font-family: inherit;
+    letter-spacing: inherit;
 }
 
 body {
@@ -67,6 +70,7 @@ body {
     min-height: 100dvh;
     font-size: var(--page-text-size);
     font-weight: 500;
+    letter-spacing: var(--page-text-spacing);
 }
 
 @media (max-width: 720px) {

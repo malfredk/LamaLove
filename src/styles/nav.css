@@ -23,6 +23,7 @@
     margin: 0;
     font-size: clamp(3.4rem, 7vw, 6.5rem);
     font-weight: 500;
+    letter-spacing: var(--names-letter-spacing);
     color: var(--text);
     line-height: 1;
 }
