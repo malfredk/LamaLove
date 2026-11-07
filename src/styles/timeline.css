@@ -31,8 +31,6 @@
     display: grid;
     grid-template-columns: 4.5rem 16px minmax(0, 1fr);
     column-gap: 1.25rem;
-    font-size: var(--page-text-size);
-    line-height: 1.4;
 }
 
 .timeline-event:not(:last-child) .timeline-details {
@@ -45,7 +43,7 @@
 }
 
 .timeline-marker {
-    --ring-top: calc(0.7em - 8px);
+    --ring-top: calc(var(--page-text-line-height) * 0.5em - 8px);
     position: relative;
 }
 
@@ -82,16 +80,11 @@
 
 .timeline-details h3 {
     margin: 0;
-    font-size: inherit;
-    font-weight: 700;
-    line-height: inherit;
     overflow-wrap: anywhere;
 }
 
 .timeline-details p {
     margin: 0.3rem 0 0;
-    font-size: inherit;
-    line-height: 1.4;
 }
 
 .timeline-details a {

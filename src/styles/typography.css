@@ -1,0 +1,68 @@
+/* Shared content typography. Header typography lives in Header.astro. */
+/* Keep --font-family in sync with the font stylesheet in Layout.astro. */
+:root {
+    --font-family: "Cormorant Garamond", serif;
+
+    /* Normal text, including paragraphs, captions, and weather. */
+    --page-text-size: 1.18rem;
+    --page-text-weight: 500;
+    --page-text-spacing: 0.02em;
+    --page-text-line-height: 1.65;
+    --page-text-emphasis-weight: 700;
+    --small-text-size: calc(var(--page-text-size) * 0.75);
+
+    /* Subtitles on every page. */
+    --page-subtitle-size: clamp(1.55rem, 2.3vw, 2rem);
+    --page-subtitle-weight: 500;
+    --page-subtitle-spacing: 0.14em;
+    --page-subtitle-line-height: 1.1;
+}
+
+/* Responsive typography is shared by all pages too. */
+@media (max-width: 720px) {
+    :root {
+        --page-text-size: 1.05rem;
+        --page-text-line-height: 1.6;
+        --page-subtitle-size: 1.25rem;
+        --page-subtitle-spacing: 0.12em;
+    }
+}
+
+html,
+body {
+    font-family: var(--font-family);
+}
+
+body {
+    font-size: var(--page-text-size);
+    font-weight: var(--page-text-weight);
+    line-height: var(--page-text-line-height);
+    letter-spacing: var(--page-text-spacing);
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    letter-spacing: inherit;
+}
+
+.text-small {
+    font-size: var(--small-text-size);
+    letter-spacing: var(--page-text-spacing);
+}
+
+.page-subtitle,
+.section h2 {
+    font-size: var(--page-subtitle-size);
+    font-weight: var(--page-subtitle-weight);
+    line-height: var(--page-subtitle-line-height);
+    letter-spacing: var(--page-subtitle-spacing);
+    text-transform: uppercase;
+}
+
+.timeline-details h3 {
+    font: inherit;
+    font-weight: var(--page-text-emphasis-weight);
+}

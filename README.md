@@ -1,3 +1,11 @@
+## Typography
+
+Edit `src/styles/typography.css` to change content text across the entire site. Normal text uses `--page-text-*` and subtitles use `--page-subtitle-*`.
+
+Font sizes, weights, letter spacing, line spacing, and mobile adjustments live there. Page and component styles inherit these settings; keep typography changes in this shared file. Small print uses `.text-small`; the hotel code keeps its distinct monospace font.
+
+The complete header is defined in `src/components/Header.astro`: markup, names, date, navigation, spacing, and mobile styling. `Layout.astro` renders this same component on every page. Edit `--names-*`, `--header-date-*`, `--header-nav-gap`, and `--nav-*` there to adjust the header. Its row spacing is explicit and does not depend on paragraph line height.
+
 ## Wedding weather
 
 The weather box is rendered as static HTML. Browsers never call MET's API.

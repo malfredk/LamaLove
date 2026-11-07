@@ -81,8 +81,6 @@
 
 .photo-info-box figcaption {
     margin-top: 0.75rem;
-    font-size: var(--page-text-size);
-    line-height: 1.65;
 }
 
 .photo-info-box figcaption p {

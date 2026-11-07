@@ -34,10 +34,6 @@
 
 .info-text p {
     margin: 0.35rem 0;
-    font-size: var(--page-text-size);
-    line-height: 1.65;
-    font-weight: 500;
-    color: var(--text);
 }
 
 .info-text p+p {
@@ -63,9 +59,5 @@
 
     .info-box {
         padding: 2rem 1.25rem;
-    }
-
-    .info-text p {
-        line-height: 1.6;
     }
 }
