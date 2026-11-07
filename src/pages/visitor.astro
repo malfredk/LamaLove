@@ -55,7 +55,7 @@ const visitorItems = [
       <Fragment slot="text">
         <p>
           Vi regner med det blir strålende sol og anbefaler derfor turen innom
-          iskremkiosken
+          iskremkiosken{" "}
           <a
             href="https://maps.app.goo.gl/CjNibpxQCDifWSTb6"
             target="_blank"
@@ -64,17 +64,17 @@ const visitorItems = [
         </p>
         <p>
           Dersom du skal ut og spise i løpet av oppholdet, anbefaler vi blant
-          annet
+          annet{" "}
           <a
             href="https://maps.app.goo.gl/M7uNLrxRbiQU65KK9"
             target="_blank"
             rel="noopener noreferrer">Allmuen</a
-          >,
+          >,{" "}
           <a
             href="https://maps.app.goo.gl/KjW2sueMG1uLLgcN6"
             target="_blank"
             rel="noopener noreferrer">Villani</a
-          > og
+          > og{" "}
           <a
             href="https://maps.app.goo.gl/A4Tes9QhHbgLCQBA7"
             target="_blank"
@@ -149,9 +149,11 @@ const visitorItems = [
 </style>
 
 <script>
-  const copyButton = document.querySelector<HTMLButtonElement>(".copy-code");
-  const copyStatus = document.querySelector<HTMLElement>(".copy-status");
-  if (copyButton && copyStatus) {
+  function initializeCopyButton() {
+    const copyButton = document.querySelector<HTMLButtonElement>(".copy-code");
+    const copyStatus = document.querySelector<HTMLElement>(".copy-status");
+    if (!copyButton || !copyStatus || copyButton.dataset.initialized) return;
+    copyButton.dataset.initialized = "true";
     let statusTimer: ReturnType<typeof setTimeout>;
     copyButton.addEventListener("click", async () => {
       clearTimeout(statusTimer);
@@ -171,4 +173,6 @@ const visitorItems = [
       }, 1500);
     });
   }
+
+  document.addEventListener("astro:page-load", initializeCopyButton);
 </script>
