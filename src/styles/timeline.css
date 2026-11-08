@@ -1,5 +1,5 @@
 .timeline-page {
-    padding: 4rem 1.5rem 6rem;
+    padding: var(--box-gap) 1.5rem 6rem;
 }
 
 .timeline-day {
@@ -10,7 +10,7 @@
 }
 
 .timeline-day+.timeline-day {
-    margin-top: 4rem;
+    margin-top: var(--box-gap);
 }
 
 .timeline-day h2 {
@@ -93,7 +93,7 @@
 
 @media (max-width: 720px) {
     .timeline-page {
-        padding: 2.5rem 1.25rem 4rem;
+        padding: var(--box-gap) 1.25rem 4rem;
     }
 
     .timeline-day {

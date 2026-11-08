@@ -1,5 +1,5 @@
 .info-page {
-    padding: 4rem 1.5rem 6rem;
+    padding: var(--box-gap) 1.5rem 6rem;
 }
 
 .info-container {
@@ -11,7 +11,7 @@
 .info-list {
     display: flex;
     flex-direction: column;
-    gap: 3.2rem;
+    gap: var(--box-gap);
 }
 
 .info-box {
@@ -50,11 +50,7 @@
 
 @media (max-width: 720px) {
     .info-page {
-        padding: 2.5rem 1.25rem 4rem;
-    }
-
-    .info-list {
-        gap: 2.4rem;
+        padding: var(--box-gap) 1.25rem 4rem;
     }
 
     .info-box {
