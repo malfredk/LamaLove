@@ -1,0 +1,200 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import "../styles/home.css";
+
+const photos = Object.entries(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/lama_photos/*.{jpg,jpeg,JPG,JPEG,png,PNG,webp,WEBP}",
+    { eager: true },
+  ),
+)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, photo]) => photo.default);
+---
+
+  <section class="photo-carousel" aria-label="Bilder av Lars og Malene">
+    <home-photo-carousel class="photo-carousel__viewport" tabindex="0" role="group" aria-label="Dra eller bruk piltastene for å bla i bildene">
+      <div class="photo-carousel__track">
+        {[false, true].map((duplicate) => (
+          <div class="photo-carousel__group" aria-hidden={duplicate ? "true" : undefined}>
+            {photos.map((photo, index) => (
+              <Image
+                src={photo}
+                alt={duplicate ? "" : `Lars og Malene – bilde ${index + 1}`}
+                height={640}
+                width={Math.round((photo.width / photo.height) * 640)}
+                format="webp"
+                quality={80}
+                loading="eager"
+                draggable="false"
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </home-photo-carousel>
+  </section>
+
+<script>
+  // Speeds are in pixels per millisecond; momentum settles over about 5 seconds.
+  const CRUISE_SPEED = 0.024;
+  const MAX_SWIPE_SPEED = 1.2;
+  const MOMENTUM_DECAY_MS = 1400;
+  const MAX_FRAME_INTERVAL_MS = 50;
+  const SWIPE_SAMPLE_RESET_MS = 100;
+  const PREVIOUS_SWIPE_WEIGHT = 0.35;
+  const CURRENT_SWIPE_WEIGHT = 0.65;
+  const RELEASE_DECAY_MS = 80;
+  const KEYBOARD_STEP_RATIO = 0.6;
+
+  class HomePhotoCarousel extends HTMLElement {
+    private track!: HTMLElement;
+    private group!: HTMLElement;
+    private reducedMotion!: MediaQueryList;
+    private events?: AbortController;
+    private resizeObserver?: ResizeObserver;
+    private frame = 0;
+    private offset = 0;
+    private groupWidth = 0;
+    private activePointerId?: number;
+    private lastPointerX = 0;
+    private lastMoveTime = 0;
+    private velocity = CRUISE_SPEED;
+    private swipeVelocity = 0;
+    private previousFrameTime = 0;
+
+    connectedCallback() {
+      this.cleanup();
+      this.track = this.querySelector<HTMLElement>(".photo-carousel__track")!;
+      this.group = this.querySelector<HTMLElement>(".photo-carousel__group")!;
+      this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      this.resetMotion();
+      this.observeSize();
+      this.dataset.ready = "";
+      this.bindNavigationEvents();
+      this.frame = requestAnimationFrame(this.animate);
+    }
+
+    disconnectedCallback() {
+      this.cleanup();
+    }
+
+    private cleanup() {
+      this.events?.abort();
+      this.resizeObserver?.disconnect();
+      cancelAnimationFrame(this.frame);
+      delete this.dataset.ready;
+      delete this.dataset.dragging;
+      this.track?.style.removeProperty("transform");
+    }
+
+    private resetMotion() {
+      this.offset = 0;
+      this.groupWidth = this.group.getBoundingClientRect().width;
+      this.activePointerId = undefined;
+      this.lastPointerX = 0;
+      this.lastMoveTime = 0;
+      this.velocity = CRUISE_SPEED;
+      this.swipeVelocity = 0;
+      this.previousFrameTime = 0;
+    }
+
+    private render() {
+      if (this.groupWidth <= 0) return;
+      this.offset = ((this.offset % this.groupWidth) + this.groupWidth) % this.groupWidth;
+      this.track.style.transform = `translateX(${-this.offset}px)`;
+    }
+
+    private observeSize() {
+      this.resizeObserver = new ResizeObserver(() => {
+        const nextWidth = this.group.getBoundingClientRect().width;
+        if (this.groupWidth > 0) this.offset *= nextWidth / this.groupWidth;
+        this.groupWidth = nextWidth;
+        this.render();
+      });
+      this.resizeObserver.observe(this.group);
+    }
+
+    private bindNavigationEvents() {
+      this.events = new AbortController();
+      const options = { signal: this.events.signal };
+      this.addEventListener("pointerdown", this.startDrag, options);
+      this.addEventListener("pointermove", this.drag, options);
+      this.addEventListener("pointerup", this.releaseDrag, options);
+      this.addEventListener("pointercancel", this.releaseDrag, options);
+      this.addEventListener("lostpointercapture", this.releaseDrag, options);
+      this.addEventListener("keydown", this.navigateWithKeyboard, options);
+    }
+
+    private startDrag = (event: PointerEvent) => {
+      if (!event.isPrimary || event.button !== 0 || this.activePointerId !== undefined) return;
+      this.activePointerId = event.pointerId;
+      this.lastPointerX = event.clientX;
+      this.lastMoveTime = event.timeStamp;
+      this.swipeVelocity = 0;
+      this.velocity = CRUISE_SPEED;
+      this.setPointerCapture(this.activePointerId);
+      this.dataset.dragging = "";
+    };
+
+    private drag = (event: PointerEvent) => {
+      if (event.pointerId !== this.activePointerId) return;
+      const distance = this.lastPointerX - event.clientX;
+      const elapsed = event.timeStamp - this.lastMoveTime;
+      this.updateSwipeVelocity(distance, elapsed);
+      this.offset += distance;
+      this.lastPointerX = event.clientX;
+      this.lastMoveTime = event.timeStamp;
+      this.render();
+    };
+
+    private updateSwipeVelocity(distance: number, elapsed: number) {
+      if (elapsed <= 0) return;
+      const speed = Math.max(-MAX_SWIPE_SPEED, Math.min(MAX_SWIPE_SPEED, distance / elapsed));
+      this.swipeVelocity = elapsed > SWIPE_SAMPLE_RESET_MS
+        ? speed
+        : this.swipeVelocity * PREVIOUS_SWIPE_WEIGHT + speed * CURRENT_SWIPE_WEIGHT;
+    }
+
+    private releaseDrag = (event: PointerEvent) => {
+      if (event.pointerId !== this.activePointerId) return;
+      // Holding still before releasing should stop the fling.
+      this.velocity = event.type === "pointerup" && !this.reducedMotion.matches
+        ? CRUISE_SPEED + (this.swipeVelocity - CRUISE_SPEED) * Math.exp(-(event.timeStamp - this.lastMoveTime) / RELEASE_DECAY_MS)
+        : CRUISE_SPEED;
+      this.activePointerId = undefined;
+      delete this.dataset.dragging;
+    };
+
+    private navigateWithKeyboard = (event: KeyboardEvent) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      this.velocity = CRUISE_SPEED;
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      this.offset += direction * this.clientWidth * KEYBOARD_STEP_RATIO;
+      this.render();
+    };
+
+    private animate = (time: number) => {
+      const elapsed = this.previousFrameTime ? Math.min(time - this.previousFrameTime, MAX_FRAME_INTERVAL_MS) : 0;
+      this.previousFrameTime = time;
+      if (this.activePointerId === undefined && !this.reducedMotion.matches && !document.hidden) {
+        this.advanceMotion(elapsed);
+        this.render();
+      }
+      this.frame = requestAnimationFrame(this.animate);
+    };
+
+    private advanceMotion(elapsed: number) {
+      // Integrate exponential friction so the feel is independent of frame rate.
+      const decay = Math.exp(-elapsed / MOMENTUM_DECAY_MS);
+      this.offset += CRUISE_SPEED * elapsed + (this.velocity - CRUISE_SPEED) * MOMENTUM_DECAY_MS * (1 - decay);
+      this.velocity = CRUISE_SPEED + (this.velocity - CRUISE_SPEED) * decay;
+    }
+  }
+
+  if (!customElements.get("home-photo-carousel")) {
+    customElements.define("home-photo-carousel", HomePhotoCarousel);
+  }
+</script>
