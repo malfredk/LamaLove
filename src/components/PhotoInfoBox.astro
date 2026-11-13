@@ -64,160 +64,215 @@ const { title, lines, photos } = Astro.props;
 </InfoBox>
 
 <script>
+  const AUTOPLAY_INTERVAL_MS = 3000;
+  const TRANSITION_DURATION_MS = 800;
+  const TOUCH_HOVER_DELAY_MS = 1000;
+  const TAP_MOVEMENT_LIMIT_PX = 10;
+  const SWIPE_THRESHOLD_PX = 40;
+  const PRESS_FEEDBACK_DURATION_MS = 300;
+  const RELEASE_FEEDBACK_DURATION_MS = 150;
+
+  type Direction = -1 | 1;
+  type PointerPress = { id: number; x: number; y: number; time: number };
+
   class VisitorCarousel extends HTMLElement {
+    private slides: HTMLElement[] = [];
+    private slideContainer!: HTMLElement;
+    private hint!: HTMLElement;
+    private hintArrow!: HTMLElement;
+    private reducedMotion!: MediaQueryList;
+    private currentIndex = 0;
+    private hoverSuppressed = false;
+    private lastTouchTime = -Infinity;
+    private events?: AbortController;
     private sizeObserver?: ResizeObserver;
     private sizingFrame?: number;
+    private autoplayTimer?: number;
+    private transitionTimer?: number;
+    private feedbackTimer?: number;
 
     connectedCallback() {
-      const box = this.closest<HTMLElement>(".photo-info-box")!;
+      this.slides = Array.from(this.querySelectorAll("figure"));
+      this.currentIndex = Math.max(0, this.slides.findIndex((slide) => !slide.hidden));
+      this.observePhotoSize();
+      if (this.slides.length < 2) return;
+
+      this.slideContainer = this.querySelector<HTMLElement>(".slides")!;
+      this.hint = this.querySelector<HTMLElement>(".navigation-hint")!;
+      this.hintArrow = this.hint.querySelector("span")!;
+      this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      this.events = new AbortController();
+      this.hoverSuppressed = false;
+      this.lastTouchTime = -Infinity;
+      this.bindHoverEvents();
+      this.querySelectorAll<HTMLButtonElement>(".photo-navigation").forEach((button) => {
+        this.bindNavigationEvents(button);
+      });
+      this.startAutoplay();
+    }
+
+    disconnectedCallback() {
+      this.events?.abort();
+      window.clearInterval(this.autoplayTimer);
+      window.clearTimeout(this.transitionTimer);
+      window.clearTimeout(this.feedbackTimer);
+      this.sizeObserver?.disconnect();
+      if (this.sizingFrame !== undefined) window.cancelAnimationFrame(this.sizingFrame);
+      this.slides.forEach((slide) => slide.removeAttribute("data-leaving"));
+      this.hint?.classList.remove("is-feedback", "is-pressed", "is-hovered");
+    }
+
+    private observePhotoSize() {
+      const box = this.closest<HTMLElement>(".photo-info-box");
       const image = this.querySelector("img");
+      if (!box || !image) return;
+
       let previousOverhead = -1;
       const fitPhoto = () => {
-        if (!image) return;
         // Everything except the image must also fit inside the viewport.
-        const overhead =
-          box.getBoundingClientRect().height -
-          image.getBoundingClientRect().height;
+        const overhead = box.getBoundingClientRect().height - image.getBoundingClientRect().height;
         if (Math.abs(overhead - previousOverhead) < 0.5) return;
         previousOverhead = overhead;
         this.style.setProperty("--box-overhead", `${overhead}px`);
       };
       this.sizeObserver = new ResizeObserver(() => {
-        window.cancelAnimationFrame(this.sizingFrame);
+        if (this.sizingFrame !== undefined) window.cancelAnimationFrame(this.sizingFrame);
         this.sizingFrame = window.requestAnimationFrame(fitPhoto);
       });
       this.sizeObserver.observe(box);
       fitPhoto();
-      const slides = Array.from(this.querySelectorAll("figure"));
-      if (slides.length < 2) return;
-      const hint = this.querySelector<HTMLElement>(".navigation-hint")!;
-      const hintArrow = hint.querySelector("span")!;
-      const indicate = (direction: number) => {
-        hintArrow.textContent = direction < 0 ? "\u2190" : "\u2192";
-        hint.dataset.direction = direction < 0 ? "previous" : "next";
-      };
-      const live = this.querySelector<HTMLElement>(".slides")!;
-      const reducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      );
-      const paused = reducedMotion.matches;
-      let current = 0;
-      let hoverSuppressed = false;
-      let lastTouchTime = -Infinity;
-      live.addEventListener("pointermove", (event) => {
-        if (event.pointerType !== "mouse" || hoverSuppressed || performance.now() - lastTouchTime < 1000) return;
-        const bounds = live.getBoundingClientRect();
-        if (event.clientY >= bounds.top + hint.offsetHeight) {
-          hint.classList.remove("is-hovered");
-          return;
-        }
-        indicate(event.clientX < bounds.left + bounds.width / 3 ? -1 : 1);
-        hint.classList.add("is-hovered");
-      });
-      this.addEventListener("pointerleave", () => {
-        hoverSuppressed = false;
-        hint.classList.remove("is-hovered");
-      });
-      const show = (index: number) => {
-        const previous = current;
-        current = (index + slides.length) % slides.length;
-        window.clearTimeout(this.transitionTimer);
-        slides.forEach((slide, i) => {
-          slide.removeAttribute("data-leaving");
-          slide.hidden = i !== current;
-        });
-        if (previous !== current && !reducedMotion.matches) {
-          slides[previous].setAttribute("data-leaving", "");
-          this.transitionTimer = window.setTimeout(() => {
-            slides[previous].removeAttribute("data-leaving");
-          }, 800);
-        }
-      };
-      const move = (direction: number) => {
-        window.clearInterval(this.timer);
-        live.setAttribute("aria-live", "polite");
-        show(current + direction);
-      };
-      this.querySelectorAll<HTMLButtonElement>(".photo-navigation").forEach((button) => {
-        let start: { id: number; x: number; y: number } | undefined;
-        let suppressClick = false;
-        let pressedAt = 0;
-        const directionAt = (x: number) => {
-          const bounds = button.getBoundingClientRect();
-          return x < bounds.left + bounds.width / 3 ? -1 : 1;
-        };
-        button.addEventListener("pointerdown", (event) => {
-          if (!event.isPrimary || event.button !== 0) return;
-          pressedAt = performance.now();
-          window.clearTimeout(this.feedbackTimer);
-          hint.classList.remove("is-feedback");
-          if (event.pointerType === "touch") lastTouchTime = performance.now();
-          suppressClick = false;
-          hoverSuppressed = true;
-          indicate(directionAt(event.clientX));
-          hint.classList.remove("is-hovered");
-          hint.classList.add("is-pressed");
-          start = { id: event.pointerId, x: event.clientX, y: event.clientY };
-          button.setPointerCapture(event.pointerId);
-        });
-        button.addEventListener("pointerup", (event) => {
-          if (!start || start.id !== event.pointerId) return;
-          const dx = event.clientX - start.x;
-          const dy = event.clientY - start.y;
-          start = undefined;
-          hint.classList.add("is-feedback");
-          this.feedbackTimer = window.setTimeout(() => {
-            hint.classList.remove("is-feedback");
-          }, Math.max(0, 300 - (performance.now() - pressedAt)) + 150);
-          hint.classList.remove("is-pressed");
-          suppressClick = Math.abs(dx) > 10 || Math.abs(dy) > 10;
-          if (Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy)) {
-            move(dx < 0 ? 1 : -1);
-          } else if (!suppressClick) {
-            move(directionAt(event.clientX));
-          }
-        });
-        button.addEventListener("pointercancel", () => {
-          start = undefined;
-          suppressClick = true;
-          window.clearTimeout(this.feedbackTimer);
-          hint.classList.remove("is-feedback");
-          hint.classList.remove("is-pressed", "is-hovered");
-        });
-        button.addEventListener("click", (event) => {
-          // Pointer navigation is handled once on release; retain keyboard activation.
-          event.preventDefault();
-          if (event.detail === 0 && !(event instanceof PointerEvent && event.pointerType)) move(1);
-        });
-        button.addEventListener("keydown", (event) => {
-          if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-            event.preventDefault();
-            move(event.key === "ArrowLeft" ? -1 : 1);
-          }
-        });
-      });
-      this.timer = window.setInterval(() => {
-        if (
-          !paused &&
-          !document.hidden &&
-          !this.matches(":hover, :focus-within")
-        ) {
-          live.setAttribute("aria-live", "off");
-          show(current + 1);
-        }
-      }, 3000);
     }
-    timer?: number;
-    private transitionTimer?: number;
-    private feedbackTimer?: number;
-    disconnectedCallback() {
-      window.clearInterval(this.timer);
+
+    private startAutoplay() {
+      window.clearInterval(this.autoplayTimer);
+      this.autoplayTimer = window.setInterval(() => {
+        if (this.reducedMotion.matches || document.hidden) return;
+        this.slideContainer.setAttribute("aria-live", "off");
+        this.showSlide(this.currentIndex + 1);
+      }, AUTOPLAY_INTERVAL_MS);
+    }
+
+    private move(direction: Direction) {
+      this.slideContainer.setAttribute("aria-live", "polite");
+      this.showSlide(this.currentIndex + direction);
+      this.startAutoplay();
+    }
+
+    private showSlide(index: number) {
+      const previousIndex = this.currentIndex;
+      this.currentIndex = (index + this.slides.length) % this.slides.length;
       window.clearTimeout(this.transitionTimer);
+      this.slides.forEach((slide, slideIndex) => {
+        slide.removeAttribute("data-leaving");
+        slide.hidden = slideIndex !== this.currentIndex;
+      });
+      if (previousIndex === this.currentIndex || this.reducedMotion.matches) return;
+
+      const previousSlide = this.slides[previousIndex];
+      previousSlide.setAttribute("data-leaving", "");
+      this.transitionTimer = window.setTimeout(() => {
+        previousSlide.removeAttribute("data-leaving");
+      }, TRANSITION_DURATION_MS);
+    }
+
+    private directionAt(element: HTMLElement, x: number): Direction {
+      const bounds = element.getBoundingClientRect();
+      return x < bounds.left + bounds.width / 3 ? -1 : 1;
+    }
+
+    private indicateDirection(direction: Direction) {
+      this.hintArrow.textContent = direction < 0 ? "\u2190" : "\u2192";
+      this.hint.dataset.direction = direction < 0 ? "previous" : "next";
+    }
+
+    private bindHoverEvents() {
+      const options = { signal: this.events!.signal };
+      this.slideContainer.addEventListener("pointermove", (event) => {
+        this.updateHoverHint(event);
+      }, options);
+      this.addEventListener("pointerleave", () => {
+        this.hoverSuppressed = false;
+        this.hint.classList.remove("is-hovered");
+      }, options);
+    }
+
+    private updateHoverHint(event: PointerEvent) {
+      if (event.pointerType !== "mouse" || this.hoverSuppressed ||
+          performance.now() - this.lastTouchTime < TOUCH_HOVER_DELAY_MS) return;
+
+      const bounds = this.slideContainer.getBoundingClientRect();
+      if (event.clientY >= bounds.top + this.hint.offsetHeight) {
+        this.hint.classList.remove("is-hovered");
+        return;
+      }
+      this.indicateDirection(this.directionAt(this.slideContainer, event.clientX));
+      this.hint.classList.add("is-hovered");
+    }
+
+    private bindNavigationEvents(button: HTMLButtonElement) {
+      const options = { signal: this.events!.signal };
+      let press: PointerPress | undefined;
+      button.addEventListener("pointerdown", (event) => {
+        if (!event.isPrimary || event.button !== 0) return;
+        press = { id: event.pointerId, x: event.clientX, y: event.clientY, time: performance.now() };
+        this.showPressFeedback(button, event);
+        button.setPointerCapture(event.pointerId);
+      }, options);
+      button.addEventListener("pointerup", (event) => {
+        if (!press || press.id !== event.pointerId) return;
+        this.finishPointerNavigation(button, event, press);
+        press = undefined;
+      }, options);
+      button.addEventListener("pointercancel", () => {
+        press = undefined;
+        window.clearTimeout(this.feedbackTimer);
+        this.hint.classList.remove("is-feedback", "is-pressed", "is-hovered");
+      }, options);
+      button.addEventListener("click", (event) => {
+        // Pointer navigation runs on release; clicks retain keyboard activation.
+        event.preventDefault();
+        if (event.detail === 0 && !(event instanceof PointerEvent && event.pointerType)) this.move(1);
+      }, options);
+      button.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        this.move(event.key === "ArrowLeft" ? -1 : 1);
+      }, options);
+    }
+
+    private showPressFeedback(button: HTMLButtonElement, event: PointerEvent) {
       window.clearTimeout(this.feedbackTimer);
-      this.sizeObserver?.disconnect();
-      window.cancelAnimationFrame(this.sizingFrame);
+      this.hint.classList.remove("is-feedback", "is-hovered");
+      if (event.pointerType === "touch") this.lastTouchTime = performance.now();
+      this.hoverSuppressed = true;
+      this.indicateDirection(this.directionAt(button, event.clientX));
+      this.hint.classList.add("is-pressed");
+    }
+
+    private finishPointerNavigation(button: HTMLButtonElement, event: PointerEvent, press: PointerPress) {
+      this.showReleaseFeedback(press.time);
+      const deltaX = event.clientX - press.x;
+      const deltaY = event.clientY - press.y;
+      const isHorizontalSwipe = Math.abs(deltaX) >= SWIPE_THRESHOLD_PX && Math.abs(deltaX) > Math.abs(deltaY);
+      const isTap = Math.abs(deltaX) <= TAP_MOVEMENT_LIMIT_PX && Math.abs(deltaY) <= TAP_MOVEMENT_LIMIT_PX;
+      if (isHorizontalSwipe) {
+        this.move(deltaX < 0 ? 1 : -1);
+      } else if (isTap) {
+        this.move(this.directionAt(button, event.clientX));
+      }
+    }
+
+    private showReleaseFeedback(pressedAt: number) {
+      const remainingPressTime = Math.max(0, PRESS_FEEDBACK_DURATION_MS - (performance.now() - pressedAt));
+      this.hint.classList.remove("is-pressed");
+      this.hint.classList.add("is-feedback");
+      this.feedbackTimer = window.setTimeout(() => {
+        this.hint.classList.remove("is-feedback");
+      }, remainingPressTime + RELEASE_FEEDBACK_DURATION_MS);
     }
   }
-  if (!customElements.get("visitor-carousel"))
+
+  if (!customElements.get("visitor-carousel")) {
     customElements.define("visitor-carousel", VisitorCarousel);
+  }
 </script>
