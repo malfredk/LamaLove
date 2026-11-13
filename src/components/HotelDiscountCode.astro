@@ -1,0 +1,72 @@
+---
+import "../styles/hotel-discount-code.css";
+
+const discountCode = "larsogmalene";
+---
+
+<span class="hotel-code">
+  <button
+    type="button"
+    class="copy-code"
+    data-code={discountCode}
+    aria-label={`Kopier koden ${discountCode}`}
+  >
+    <span class="code-text">{discountCode}</span>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.3"
+      aria-hidden="true"
+    >
+      <rect x="8" y="8" width="12" height="13" rx="1" />
+      <path d="M16 8V3H4v13h4" />
+    </svg>
+  </button>
+  <span class="copy-status" role="status"></span>
+</span>
+
+<script>
+  const FEEDBACK_DURATION_MS = 1500;
+  const COPY_SUCCESS_MESSAGE = "Koden er kopiert";
+  const COPY_FAILURE_MESSAGE = "Marker og kopier koden manuelt.";
+
+  async function copyDiscountCode(code: string) {
+    try {
+      await navigator.clipboard.writeText(code);
+      return COPY_SUCCESS_MESSAGE;
+    } catch {
+      return COPY_FAILURE_MESSAGE;
+    }
+  }
+
+  function clearFeedback(status: HTMLElement) {
+    status.textContent = "";
+    status.classList.remove("is-visible");
+  }
+
+  function showFeedback(status: HTMLElement, message: string) {
+    status.textContent = message;
+    // Restart the feedback animation on every copy.
+    void status.offsetWidth;
+    status.classList.add("is-visible");
+  }
+
+  function initializeCopyButton() {
+    const copyButton = document.querySelector<HTMLButtonElement>(".hotel-code .copy-code");
+    const copyStatus = document.querySelector<HTMLElement>(".hotel-code .copy-status");
+    if (!copyButton || !copyStatus || copyButton.dataset.initialized) return;
+
+    copyButton.dataset.initialized = "true";
+    let statusTimer: ReturnType<typeof setTimeout>;
+    copyButton.addEventListener("click", async () => {
+      clearTimeout(statusTimer);
+      copyStatus.classList.remove("is-visible");
+      const message = await copyDiscountCode(copyButton.dataset.code!);
+      showFeedback(copyStatus, message);
+      statusTimer = setTimeout(() => clearFeedback(copyStatus), FEEDBACK_DURATION_MS);
+    });
+  }
+
+  document.addEventListener("astro:page-load", initializeCopyButton);
+</script>

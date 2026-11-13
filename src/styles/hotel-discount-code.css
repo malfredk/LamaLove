@@ -1,0 +1,71 @@
+.hotel-code {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-inline: 0.25em;
+    white-space: nowrap;
+}
+
+.hotel-code .code-text {
+    font-family: ui-monospace, "Cascadia Code", "Courier New", monospace;
+    font-size: 0.85em;
+    font-weight: 400;
+    user-select: all;
+}
+
+.hotel-code .copy-code {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15em;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.hotel-code .copy-code svg {
+    width: 0.75em;
+    height: 0.75em;
+}
+
+.hotel-code .copy-code:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 2px;
+}
+
+.hotel-code .copy-status {
+    position: absolute;
+    bottom: calc(100% + 0.3rem);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    padding: 0.25em 0.6em;
+    background: var(--background);
+    color: var(--text);
+    font-size: 0.75em;
+    line-height: 1.4;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+    pointer-events: none;
+}
+
+.hotel-code .copy-status.is-visible {
+    animation: copy-feedback 1500ms ease-out forwards;
+}
+
+.hotel-code .copy-status:empty {
+    display: none;
+}
+
+@keyframes copy-feedback {
+    0%, 75% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hotel-code .copy-status.is-visible {
+        animation: none;
+    }
+}

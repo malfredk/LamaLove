@@ -3,31 +3,30 @@ import Layout from "../layouts/Layout.astro";
 import InfoBoxes from "../components/InfoBoxes.astro";
 import InfoBox from "../components/InfoBox.astro";
 import PhotoInfoBox from "../components/PhotoInfoBox.astro";
-import ll from "../assets/bergen_photos/IMG_0140.JPG";
-import hval from "../assets/bergen_photos/IMG_0181.JPG";
-import bryggen from "../assets/bergen_photos/IMG_1822.JPG";
-import kode from "../assets/bergen_photos/IMG_5700.JPG";
-import is from "../assets/bergen_photos/IMG_0889.jpg";
-import skostredet from "../assets/bergen_photos/IMG_0208.JPG";
+import HotelDiscountCode from "../components/HotelDiscountCode.astro";
+import lilleLungegaardsvannetPhoto from "../assets/bergen_photos/IMG_0140.JPG";
+import naturalHistoryMuseumPhoto from "../assets/bergen_photos/IMG_0181.JPG";
+import bryggenPhoto from "../assets/bergen_photos/IMG_1822.JPG";
+import kodeMuseumPhoto from "../assets/bergen_photos/IMG_5700.JPG";
+import floeyenPhoto from "../assets/bergen_photos/IMG_0889.jpg";
+import skostredetPhoto from "../assets/bergen_photos/IMG_0208.JPG";
 
 // Each photo is captioned with its location.
 const bergenPhotos = [
-  { src: ll, location: "Lille Lungegårdsvannet" },
-  { src: hval, location: "Naturhistorisk museum" },
-  { src: bryggen, location: "Bryggen" },
-  { src: kode, location: "Kode museum, Rasmus Meyer" },
-  { src: is, location: "Fløyen" },
-  { src: skostredet, location: "Skostredet" },
+  { src: lilleLungegaardsvannetPhoto, location: "Lille Lungegårdsvannet" },
+  { src: naturalHistoryMuseumPhoto, location: "Naturhistorisk museum" },
+  { src: bryggenPhoto, location: "Bryggen" },
+  { src: kodeMuseumPhoto, location: "Kode museum, Rasmus Meyer" },
+  { src: floeyenPhoto, location: "Fløyen" },
+  { src: skostredetPhoto, location: "Skostredet" },
 ];
 
-const visitorItems = [
-  {
-    title: "Attraksjoner",
-    lines: [
-      "Hvis du har litt tid til overs så har Bergen mye å by på. Eksempler på hvordan en østlending kan nyte byen:",
-    ],
-  },
-];
+const attractions = {
+  title: "Attraksjoner",
+  lines: [
+    "Hvis du har litt tid til overs så har Bergen mye å by på. Eksempler på hvordan en østlending kan nyte byen:",
+  ],
+};
 ---
 
 <Layout title="L&M" activePage="visitor">
@@ -37,16 +36,7 @@ const visitorItems = [
         <p>
           Dersom du ønsker å bo på hotell <a href="https://www.hotelcharmante.no/" target="_blank" rel="noopener noreferrer">Charmante</a>,
           hvor middagen og festen er, så kan du bruke koden
-          <span class="hotel-code">
-            <button type="button" class="copy-code" aria-label="Kopier koden larsogmalene">
-              <span class="code-text">larsogmalene</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
-                <rect x="8" y="8" width="12" height="13" rx="1" />
-                <path d="M16 8V3H4v13h4" />
-              </svg>
-            </button>
-            <span class="copy-status" role="status"></span>
-          </span>
+          <HotelDiscountCode />
           for litt rabatt.
         </p>
       </Fragment>
@@ -84,95 +74,8 @@ const visitorItems = [
       </Fragment>
     </InfoBox>
     <PhotoInfoBox
-      {...visitorItems[visitorItems.length - 1]}
+      {...attractions}
       photos={bergenPhotos}
     />
   </InfoBoxes>
 </Layout>
-
-<style>
-  .hotel-code {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    margin-inline: 0.25em;
-    white-space: nowrap;
-  }
-
-  .hotel-code .code-text {
-    font-family: ui-monospace, "Cascadia Code", "Courier New", monospace;
-    font-size: 0.85em;
-    font-weight: 400;
-    user-select: all;
-  }
-
-  .copy-code {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.15em;
-    padding: 0;
-    border: 0;
-    font: inherit;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-  }
-
-  .copy-code svg { width: 0.75em; height: 0.75em; }
-  .copy-code:focus-visible { outline: 1px solid currentColor; outline-offset: 2px; }
-  .copy-status {
-    position: absolute;
-    bottom: calc(100% + 0.3rem);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
-    padding: 0.25em 0.6em;
-    background: var(--background);
-    color: var(--text);
-    font-size: 0.75em;
-    line-height: 1.4;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
-    pointer-events: none;
-  }
-  .copy-status.is-visible {
-    animation: copy-feedback 1500ms ease-out forwards;
-  }
-  @keyframes copy-feedback {
-    0%, 75% { opacity: 1; }
-    100% { opacity: 0; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .copy-status.is-visible { animation: none; }
-  }
-  .copy-status:empty { display: none; }
-</style>
-
-<script>
-  function initializeCopyButton() {
-    const copyButton = document.querySelector<HTMLButtonElement>(".copy-code");
-    const copyStatus = document.querySelector<HTMLElement>(".copy-status");
-    if (!copyButton || !copyStatus || copyButton.dataset.initialized) return;
-    copyButton.dataset.initialized = "true";
-    let statusTimer: ReturnType<typeof setTimeout>;
-    copyButton.addEventListener("click", async () => {
-      clearTimeout(statusTimer);
-      copyStatus.classList.remove("is-visible");
-      try {
-        await navigator.clipboard.writeText("larsogmalene");
-        copyStatus.textContent = "Koden er kopiert";
-      } catch {
-        copyStatus.textContent = "Marker og kopier koden manuelt.";
-      }
-      // Restart the feedback animation on every copy.
-      void copyStatus.offsetWidth;
-      copyStatus.classList.add("is-visible");
-      statusTimer = setTimeout(() => {
-        copyStatus.textContent = "";
-        copyStatus.classList.remove("is-visible");
-      }, 1500);
-    });
-  }
-
-  document.addEventListener("astro:page-load", initializeCopyButton);
-</script>
