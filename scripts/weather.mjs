@@ -1,4 +1,11 @@
 import { WEDDING_DATE, TIME_ZONE } from '../src/config/wedding.mjs';
+
+const HOUR_MS = 3600000;
+const AFTERNOON_START_HOUR = 12;
+const AFTERNOON_END_HOUR = 18;
+const PREFERRED_FORECAST_HOUR = 15;
+const HOURLY_SUMMARY_PENALTY = 0.25;
+
 export const FALLBACK = {
   date: WEDDING_DATE,
   source: 'fallback',
@@ -6,13 +13,15 @@ export const FALLBACK = {
   description: '',
 };
 
-const localParts = new Intl.DateTimeFormat('sv-SE', {
+const osloDateTimeFormatter = new Intl.DateTimeFormat('sv-SE', {
   timeZone: TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit',
   hour: '2-digit', hourCycle: 'h23',
 });
 
 export function osloTime(timestamp) {
-  const parts = Object.fromEntries(localParts.formatToParts(new Date(timestamp)).map(p => [p.type, p.value]));
+  const parts = Object.fromEntries(
+    osloDateTimeFormatter.formatToParts(new Date(timestamp)).map(part => [part.type, part.value]),
+  );
   return { date: `${parts.year}-${parts.month}-${parts.day}`, hour: Number(parts.hour) };
 }
 
@@ -27,6 +36,22 @@ export function weatherSymbol(code) {
 }
 
 export function selectLocationForecast(payload, weddingDate = WEDDING_DATE) {
+  const candidates = collectAfternoonCandidates(payload, weddingDate);
+  candidates.sort((first, second) => first.score - second.score);
+  const selected = candidates[0];
+  if (!selected) return null;
+
+  return {
+    date: weddingDate,
+    source: 'locationforecast',
+    ...weatherSymbol(selected.code),
+    temperature: selected.temperature,
+    period: `${formatHour(selected.start.hour)}–${formatHour(selected.end.hour)}`,
+    updatedAt: payload.properties.meta?.updated_at ?? null,
+  };
+}
+
+function collectAfternoonCandidates(payload, weddingDate) {
   const candidates = [];
   for (const entry of payload?.properties?.timeseries ?? []) {
     const start = osloTime(entry.time);
@@ -36,32 +61,42 @@ export function selectLocationForecast(payload, weddingDate = WEDDING_DATE) {
     for (const hours of [6, 1]) {
       const period = entry.data?.[`next_${hours}_hours`];
       const code = period?.summary?.symbol_code;
-      const end = osloTime(new Date(Date.parse(entry.time) + hours * 3600000));
-      if (!code || start.hour < 12 || start.hour >= 18 || end.date !== weddingDate) continue;
-      candidates.push({ entry, start, end, hours, code, temperature,
-        score: Math.abs(start.hour + hours / 2 - 15) + (hours === 6 ? 0 : 0.25) });
+      const end = osloTime(new Date(Date.parse(entry.time) + hours * HOUR_MS));
+      if (!code || !isAfternoonHour(start.hour) || end.date !== weddingDate) continue;
+      candidates.push({
+        start,
+        end,
+        code,
+        temperature,
+        score: scoreForecastPeriod(start.hour, hours),
+      });
     }
   }
-  candidates.sort((a, b) => a.score - b.score);
-  const selected = candidates[0];
-  if (!selected) return null;
-  return {
-    date: weddingDate, source: 'locationforecast',
-    ...weatherSymbol(selected.code),
-    temperature: selected.temperature,
-    period: `${String(selected.start.hour).padStart(2, '0')}:00–${String(selected.end.hour).padStart(2, '0')}:00`,
-    updatedAt: payload.properties.meta?.updated_at ?? null,
-  };
+  return candidates;
+}
+
+function isAfternoonHour(hour) {
+  return hour >= AFTERNOON_START_HOUR && hour < AFTERNOON_END_HOUR;
+}
+
+function scoreForecastPeriod(startHour, hours) {
+  const distanceFromPreferredHour = Math.abs(startHour + hours / 2 - PREFERRED_FORECAST_HOUR);
+  return distanceFromPreferredHour + (hours === 6 ? 0 : HOURLY_SUMMARY_PENALTY);
+}
+
+function formatHour(hour) {
+  return `${String(hour).padStart(2, '0')}:00`;
 }
 
 export function selectSubseasonalForecast(payload, weddingDate = WEDDING_DATE) {
   const entry = payload?.properties?.timeseries?.find(entry =>
     osloTime(entry.time).date === weddingDate && entry.data?.next_24_hours?.details);
   const details = entry?.data?.next_24_hours?.details;
-  if (!details || !Number.isFinite(details.air_temperature_min) ||
-      !Number.isFinite(details.air_temperature_max) || !Number.isFinite(details.probability_of_precipitation)) return null;
+  if (!hasDailyForecastDetails(details)) return null;
   return {
-    date: weddingDate, source: 'subseasonal', icon: 'rain',
+    date: weddingDate,
+    source: 'subseasonal',
+    icon: 'rain',
     description: `${Math.round(details.probability_of_precipitation)}% sjanse for regn`,
     precipitationProbability: details.probability_of_precipitation,
     temperatureMin: details.air_temperature_min,
@@ -70,6 +105,15 @@ export function selectSubseasonalForecast(payload, weddingDate = WEDDING_DATE) {
   };
 }
 
+function hasDailyForecastDetails(details) {
+  return details &&
+    Number.isFinite(details.air_temperature_min) &&
+    Number.isFinite(details.air_temperature_max) &&
+    Number.isFinite(details.probability_of_precipitation);
+}
+
 export function selectForecast(location, subseasonal, weddingDate = WEDDING_DATE) {
-  return selectLocationForecast(location, weddingDate) ?? selectSubseasonalForecast(subseasonal, weddingDate) ?? { ...FALLBACK, date: weddingDate };
+  return selectLocationForecast(location, weddingDate) ??
+    selectSubseasonalForecast(subseasonal, weddingDate) ??
+    { ...FALLBACK, date: weddingDate };
 }
