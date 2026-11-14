@@ -47,6 +47,9 @@ need to request a separate clean-code pass.
   Preserve content, accessibility, reduced-motion behavior, timing, ordering,
   error handling, public interfaces, and output formats.
 - Improve the code touched by the task without starting unrelated rewrites.
+- Remove unused imports, variables, functions, selectors, and obsolete or
+  overridden declarations from edited files as part of each task. Preserve code
+  used by dynamic states and keep cleanup within the task's scope.
 - Follow established project conventions unless the task calls for changing them.
 
 ## Verification and completion

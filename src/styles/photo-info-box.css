@@ -2,14 +2,13 @@
     container-type: inline-size;
 }
 
-/* Let the portrait photos use the available width while fitting the viewport. */
+/* Keep photos usable at high zoom even when the text fills the viewport. */
 .photo-info-box visitor-carousel {
-    --photo-height: max(0px, min(calc(100cqw * 4 / 3), calc(100svh - var(--box-overhead, 18rem) - 32px)));
+    --photo-height: min(calc(100cqw * 4 / 3), max(12rem, calc(100svh - var(--box-overhead, 18rem) - 32px)));
+    --controls-height: 1.75rem;
     display: block;
     position: relative;
-    width: min(100%, calc(var(--photo-height) * 3 / 4));
-    left: 50%;
-    transform: translateX(-50%);
+    width: 100%;
     margin: 1.5rem 0 0;
 }
 
@@ -18,6 +17,8 @@
     content: "";
     position: absolute;
     inset: 0 0 auto;
+    width: min(100%, calc(var(--photo-height) * 3 / 4));
+    margin-inline: auto;
     height: var(--photo-height);
     box-shadow: 0 4px 10px rgb(0 0 0 / 18%);
     pointer-events: none;
@@ -37,20 +38,23 @@
 }
 
 .photo-info-box figure[hidden] {
-    display: none;
+    display: block;
+    visibility: hidden;
 }
 
 .photo-info-box figure[hidden][data-leaving] {
-    display: block;
+    visibility: visible;
     z-index: 0;
     pointer-events: none;
 }
 
-.photo-info-box figure[data-leaving] figcaption {
+.photo-info-box figure[data-leaving] figcaption,
+.photo-info-box .slide-indicator[data-leaving] span::before {
     animation: caption-leave 300ms ease-in-out forwards;
 }
 
-.photo-info-box figure:not([hidden]) figcaption {
+.photo-info-box figure:not([hidden]) figcaption,
+.photo-info-box .slide-indicator[aria-current="true"] span::before {
     animation: caption-arrive 800ms ease-in-out;
 }
 
@@ -100,81 +104,60 @@
     flex-shrink: 0;
 }
 
-.photo-info-box .navigation-hint {
-    z-index: 2;
+.photo-info-box visitor-carousel:has(.carousel-controls) figcaption {
+    margin-top: calc(var(--controls-height) + 0.25rem);
+}
+
+.photo-info-box .carousel-controls {
     position: absolute;
-    inset: 0 0 auto;
-    height: var(--photo-height);
-    pointer-events: none;
+    top: calc(var(--photo-height) + 0.125rem);
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-.photo-info-box .navigation-hint.is-hovered::before,
-.photo-info-box .navigation-hint.is-feedback::before,
-.photo-info-box .navigation-hint.is-feedback span,
-.photo-info-box .navigation-hint.is-pressed::before,
-.photo-info-box .navigation-hint.is-hovered span,
-.photo-info-box .navigation-hint.is-pressed span {
-    opacity: 1;
+.photo-info-box .slide-indicators {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
 }
 
-.photo-info-box .navigation-hint.is-hovered span {
-    transition-duration: 120ms, 120ms;
+.photo-info-box button.carousel-arrow {
+    flex-shrink: 0;
 }
 
-.photo-info-box .navigation-hint::before {
+.photo-info-box .carousel-arrow svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.photo-info-box .slide-indicator span {
+    position: relative;
+    width: 0.4rem;
+    height: 0.4rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+}
+
+.photo-info-box .slide-indicator span::before {
     content: "";
     position: absolute;
-    inset: 0 0 0 50%;
+    inset: -1px;
+    border-radius: inherit;
+    background: currentColor;
     opacity: 0;
-    transition: opacity 1500ms ease-out;
-    background: linear-gradient(to left, color-mix(in srgb, var(--background) 85%, transparent), transparent);
 }
 
-.photo-info-box .navigation-hint[data-direction="previous"]::before {
-    inset: 0 50% 0 0;
-    background: linear-gradient(to right, color-mix(in srgb, var(--background) 85%, transparent), transparent);
-}
-
-/* Fade in promptly; the base duration controls only the fade out. */
-.photo-info-box .navigation-hint.is-hovered::before {
-    transition-duration: 120ms;
-}
-
-.photo-info-box .navigation-hint.is-pressed::before,
-.photo-info-box .navigation-hint.is-feedback::before {
-    transition-duration: 300ms;
-}
-
-.photo-info-box .navigation-hint span {
-    position: absolute;
-    top: 50%;
-    opacity: 0;
-    right: 0.75rem;
-    transform: translateY(-50%);
-    transition: transform 120ms ease-out, opacity 1100ms ease-out;
-    display: grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    color: var(--text);
-    font-size: 1.6rem;
-    font-weight: 600;
-    text-shadow: 0 0 4px var(--background);
-    line-height: 1;
-}
-
-.photo-info-box .navigation-hint[data-direction="previous"] span {
-    left: 0.75rem;
-    right: auto;
-}
-
-.photo-info-box .navigation-hint.is-pressed span {
-    transform: translateY(calc(-50% + 2px)) scale(0.9);
-    transition-duration: 120ms, 300ms;
-}
-
-.photo-info-box .navigation-hint.is-feedback span {
-    transition-duration: 120ms, 300ms;
+.photo-info-box .slide-indicator[aria-current="true"] span::before {
+    opacity: 1;
 }
 
 .photo-info-box button {
@@ -183,12 +166,18 @@
     color: var(--text);
     background: transparent;
     border: 0;
-    padding: 6px;
+    padding: 0;
     width: 44px;
-    height: 44px;
-    font-size: inherit;
+    font: inherit;
     cursor: pointer;
-    pointer-events: auto;
+}
+
+.photo-info-box button.slide-indicator {
+    width: 1.1rem;
+}
+
+.photo-info-box .carousel-controls button {
+    height: var(--controls-height);
 }
 
 .photo-info-box .photo-navigation {
@@ -196,9 +185,9 @@
     touch-action: pan-y pinch-zoom;
     user-select: none;
     display: block;
-    width: 100%;
+    width: min(100%, calc(var(--photo-height) * 3 / 4));
     height: auto;
-    padding: 0;
+    margin-inline: auto;
 }
 
 .photo-info-box .photo-navigation:disabled {
@@ -210,18 +199,20 @@
     outline-offset: 3px;
 }
 
+@media (pointer: coarse) {
+    .photo-info-box visitor-carousel {
+        --controls-height: 44px;
+    }
+
+    .photo-info-box button.slide-indicator {
+        width: 1.5rem;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .photo-info-box figure:not([hidden]) .photo-navigation {
+    .photo-info-box figure:not([hidden]) .photo-navigation,
+    .photo-info-box figure:not([hidden]) figcaption,
+    .photo-info-box .slide-indicator span::before {
         animation: none;
-    }
-    .photo-info-box figure:not([hidden]) figcaption {
-        animation: none;
-    }
-    .photo-info-box figure,
-    .photo-info-box figure[hidden],
-    .photo-info-box .navigation-hint span,
-    .photo-info-box .navigation-hint::before,
-    .photo-info-box .navigation-hint {
-        transition: none;
     }
 }

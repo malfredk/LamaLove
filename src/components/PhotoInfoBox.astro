@@ -25,15 +25,15 @@ const { title, lines, photos } = Astro.props;
                 aria-label="Forrige bilde på venstre tredjedel, neste bilde på resten. Bruk piltastene eller Enter."
                 disabled={photos.length < 2}
               >
-              <Image
-                src={photo.src}
-                alt={photo.location}
-                width={900}
-                format="webp"
-                quality={80}
-                loading="eager"
-                draggable="false"
-              />
+                <Image
+                  src={photo.src}
+                  alt={photo.location}
+                  width={900}
+                  format="webp"
+                  quality={80}
+                  loading="eager"
+                  draggable="false"
+                />
               </button>
               <figcaption>
                 <p class="location">
@@ -54,8 +54,22 @@ const { title, lines, photos } = Astro.props;
           ))}
         </div>
         {photos.length > 1 && (
-          <div class="navigation-hint" aria-hidden="true">
-            <span></span>
+          <div class="carousel-controls" role="group" aria-label="Bildenavigasjon">
+            <button type="button" class="carousel-arrow" data-step="-1" aria-label="Forrige bilde">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m16 4-8 8 8 8" /></svg>
+            </button>
+            <div class="slide-indicators">
+              {photos.map((_, index) => (
+                <button type="button" class="slide-indicator" data-slide={index}
+                  aria-label={`Vis bilde ${index + 1} av ${photos.length}`}
+                  aria-current={index === 0 ? "true" : "false"}>
+                  <span></span>
+                </button>
+              ))}
+            </div>
+            <button type="button" class="carousel-arrow" data-step="1" aria-label="Neste bilde">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 4 8 8-8 8" /></svg>
+            </button>
           </div>
         )}
       </visitor-carousel>
@@ -66,30 +80,22 @@ const { title, lines, photos } = Astro.props;
 <script>
   const AUTOPLAY_INTERVAL_MS = 3000;
   const TRANSITION_DURATION_MS = 800;
-  const TOUCH_HOVER_DELAY_MS = 1000;
   const TAP_MOVEMENT_LIMIT_PX = 10;
   const SWIPE_THRESHOLD_PX = 40;
-  const PRESS_FEEDBACK_DURATION_MS = 300;
-  const RELEASE_FEEDBACK_DURATION_MS = 150;
 
   type Direction = -1 | 1;
-  type PointerPress = { id: number; x: number; y: number; time: number };
+  type PointerPress = { id: number; x: number; y: number };
 
   class VisitorCarousel extends HTMLElement {
     private slides: HTMLElement[] = [];
     private slideContainer!: HTMLElement;
-    private hint!: HTMLElement;
-    private hintArrow!: HTMLElement;
     private reducedMotion!: MediaQueryList;
     private currentIndex = 0;
-    private hoverSuppressed = false;
-    private lastTouchTime = -Infinity;
     private events?: AbortController;
     private sizeObserver?: ResizeObserver;
     private sizingFrame?: number;
     private autoplayTimer?: number;
     private transitionTimer?: number;
-    private feedbackTimer?: number;
 
     connectedCallback() {
       this.slides = Array.from(this.querySelectorAll("figure"));
@@ -98,16 +104,12 @@ const { title, lines, photos } = Astro.props;
       if (this.slides.length < 2) return;
 
       this.slideContainer = this.querySelector<HTMLElement>(".slides")!;
-      this.hint = this.querySelector<HTMLElement>(".navigation-hint")!;
-      this.hintArrow = this.hint.querySelector("span")!;
       this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
       this.events = new AbortController();
-      this.hoverSuppressed = false;
-      this.lastTouchTime = -Infinity;
-      this.bindHoverEvents();
       this.querySelectorAll<HTMLButtonElement>(".photo-navigation").forEach((button) => {
         this.bindNavigationEvents(button);
       });
+      this.bindControls();
       this.startAutoplay();
     }
 
@@ -115,23 +117,29 @@ const { title, lines, photos } = Astro.props;
       this.events?.abort();
       window.clearInterval(this.autoplayTimer);
       window.clearTimeout(this.transitionTimer);
-      window.clearTimeout(this.feedbackTimer);
       this.sizeObserver?.disconnect();
       if (this.sizingFrame !== undefined) window.cancelAnimationFrame(this.sizingFrame);
       this.slides.forEach((slide) => slide.removeAttribute("data-leaving"));
-      this.hint?.classList.remove("is-feedback", "is-pressed", "is-hovered");
+      this.querySelectorAll("[data-slide]").forEach((button) => button.removeAttribute("data-leaving"));
     }
 
     private observePhotoSize() {
       const box = this.closest<HTMLElement>(".photo-info-box");
-      const image = this.querySelector("img");
-      if (!box || !image) return;
+      if (!box) return;
 
       let previousOverhead = -1;
       const fitPhoto = () => {
-        // Everything except the image must also fit inside the viewport.
-        const overhead = box.getBoundingClientRect().height - image.getBoundingClientRect().height;
-        if (Math.abs(overhead - previousOverhead) < 0.5) return;
+        const boxStyles = getComputedStyle(box);
+        const captionHeights = this.slides.map((slide) => {
+          const caption = slide.querySelector("figcaption")!;
+          return caption.getBoundingClientRect().height + parseFloat(getComputedStyle(caption).marginTop);
+        });
+        // Measure only content independent of photo size to avoid resize feedback at browser zoom levels.
+        const overhead = Math.ceil(
+          this.getBoundingClientRect().top - box.getBoundingClientRect().top +
+          Math.max(...captionHeights) + parseFloat(boxStyles.paddingBottom),
+        );
+        if (overhead === previousOverhead) return;
         previousOverhead = overhead;
         this.style.setProperty("--box-overhead", `${overhead}px`);
       };
@@ -166,12 +174,20 @@ const { title, lines, photos } = Astro.props;
         slide.removeAttribute("data-leaving");
         slide.hidden = slideIndex !== this.currentIndex;
       });
+      const indicators = this.querySelectorAll<HTMLButtonElement>("[data-slide]");
+      indicators.forEach((button, slideIndex) => {
+        button.removeAttribute("data-leaving");
+        button.setAttribute("aria-current", String(slideIndex === this.currentIndex));
+      });
       if (previousIndex === this.currentIndex || this.reducedMotion.matches) return;
 
       const previousSlide = this.slides[previousIndex];
+      const previousIndicator = indicators[previousIndex];
       previousSlide.setAttribute("data-leaving", "");
+      previousIndicator.setAttribute("data-leaving", "");
       this.transitionTimer = window.setTimeout(() => {
         previousSlide.removeAttribute("data-leaving");
+        previousIndicator.removeAttribute("data-leaving");
       }, TRANSITION_DURATION_MS);
     }
 
@@ -180,33 +196,20 @@ const { title, lines, photos } = Astro.props;
       return x < bounds.left + bounds.width / 3 ? -1 : 1;
     }
 
-    private indicateDirection(direction: Direction) {
-      this.hintArrow.textContent = direction < 0 ? "\u2190" : "\u2192";
-      this.hint.dataset.direction = direction < 0 ? "previous" : "next";
-    }
-
-    private bindHoverEvents() {
+    private bindControls() {
       const options = { signal: this.events!.signal };
-      this.slideContainer.addEventListener("pointermove", (event) => {
-        this.updateHoverHint(event);
-      }, options);
-      this.addEventListener("pointerleave", () => {
-        this.hoverSuppressed = false;
-        this.hint.classList.remove("is-hovered");
-      }, options);
-    }
-
-    private updateHoverHint(event: PointerEvent) {
-      if (event.pointerType !== "mouse" || this.hoverSuppressed ||
-          performance.now() - this.lastTouchTime < TOUCH_HOVER_DELAY_MS) return;
-
-      const bounds = this.slideContainer.getBoundingClientRect();
-      if (event.clientY >= bounds.top + this.hint.offsetHeight) {
-        this.hint.classList.remove("is-hovered");
-        return;
-      }
-      this.indicateDirection(this.directionAt(this.slideContainer, event.clientX));
-      this.hint.classList.add("is-hovered");
+      this.querySelectorAll<HTMLButtonElement>("[data-step]").forEach((button) => {
+        button.addEventListener("click", () => {
+          this.move(Number(button.dataset.step) as Direction);
+        }, options);
+      });
+      this.querySelectorAll<HTMLButtonElement>("[data-slide]").forEach((button) => {
+        button.addEventListener("click", () => {
+          this.slideContainer.setAttribute("aria-live", "polite");
+          this.showSlide(Number(button.dataset.slide));
+          this.startAutoplay();
+        }, options);
+      });
     }
 
     private bindNavigationEvents(button: HTMLButtonElement) {
@@ -214,8 +217,7 @@ const { title, lines, photos } = Astro.props;
       let press: PointerPress | undefined;
       button.addEventListener("pointerdown", (event) => {
         if (!event.isPrimary || event.button !== 0) return;
-        press = { id: event.pointerId, x: event.clientX, y: event.clientY, time: performance.now() };
-        this.showPressFeedback(button, event);
+        press = { id: event.pointerId, x: event.clientX, y: event.clientY };
         button.setPointerCapture(event.pointerId);
       }, options);
       button.addEventListener("pointerup", (event) => {
@@ -225,8 +227,6 @@ const { title, lines, photos } = Astro.props;
       }, options);
       button.addEventListener("pointercancel", () => {
         press = undefined;
-        window.clearTimeout(this.feedbackTimer);
-        this.hint.classList.remove("is-feedback", "is-pressed", "is-hovered");
       }, options);
       button.addEventListener("click", (event) => {
         // Pointer navigation runs on release; clicks retain keyboard activation.
@@ -240,17 +240,7 @@ const { title, lines, photos } = Astro.props;
       }, options);
     }
 
-    private showPressFeedback(button: HTMLButtonElement, event: PointerEvent) {
-      window.clearTimeout(this.feedbackTimer);
-      this.hint.classList.remove("is-feedback", "is-hovered");
-      if (event.pointerType === "touch") this.lastTouchTime = performance.now();
-      this.hoverSuppressed = true;
-      this.indicateDirection(this.directionAt(button, event.clientX));
-      this.hint.classList.add("is-pressed");
-    }
-
     private finishPointerNavigation(button: HTMLButtonElement, event: PointerEvent, press: PointerPress) {
-      this.showReleaseFeedback(press.time);
       const deltaX = event.clientX - press.x;
       const deltaY = event.clientY - press.y;
       const isHorizontalSwipe = Math.abs(deltaX) >= SWIPE_THRESHOLD_PX && Math.abs(deltaX) > Math.abs(deltaY);
@@ -260,15 +250,6 @@ const { title, lines, photos } = Astro.props;
       } else if (isTap) {
         this.move(this.directionAt(button, event.clientX));
       }
-    }
-
-    private showReleaseFeedback(pressedAt: number) {
-      const remainingPressTime = Math.max(0, PRESS_FEEDBACK_DURATION_MS - (performance.now() - pressedAt));
-      this.hint.classList.remove("is-pressed");
-      this.hint.classList.add("is-feedback");
-      this.feedbackTimer = window.setTimeout(() => {
-        this.hint.classList.remove("is-feedback");
-      }, remainingPressTime + RELEASE_FEEDBACK_DURATION_MS);
     }
   }
 
