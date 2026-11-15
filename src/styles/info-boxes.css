@@ -23,6 +23,49 @@
     text-align: center;
 }
 
+/* Hand-drawn sketches are masks filled with the page colour, and every sketch has the
+   same area so tall and wide drawings carry equal weight. On phones the sketch sits
+   centred above the title. */
+.info-illustration {
+    --illustration-size: 3.75rem;
+    display: block;
+    width: calc(var(--illustration-size) * var(--illustration-width));
+    height: calc(var(--illustration-size) * var(--illustration-height));
+    margin: 0 auto 0.75rem;
+    background-color: var(--text);
+    -webkit-mask: var(--illustration) center / contain no-repeat;
+    mask: var(--illustration) center / contain no-repeat;
+}
+
+/* Wider screens give the sketch its own column, alternating left and right from box to box.
+   Equal outer columns keep the title and text centred in the box, and the sketch and the
+   content are centred against each other vertically. */
+@media (min-width: 721px) {
+    .info-box:has(> .info-illustration) {
+        display: grid;
+        grid-template-columns: 5.75rem minmax(0, 1fr) 5.75rem;
+        column-gap: 1.25rem;
+        align-items: center;
+        padding-inline: 1.5rem;
+    }
+
+    .info-box:has(> .info-illustration) > .info-illustration {
+        --illustration-size: 5.25rem;
+        grid-column: 1;
+        grid-row: 1;
+        margin: 0 auto;
+    }
+
+    .info-box:has(> .info-illustration) > .info-body {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .info-list > .info-box:nth-child(even):has(> .info-illustration) > .info-illustration {
+        grid-column: 3;
+    }
+}
+
 .info-box h3 {
     margin: 0 0 0.85rem;
 }
@@ -32,8 +75,10 @@
     margin: 0 auto;
 }
 
+/* Avoid a single word left alone on the last line. */
 .info-text p {
     margin: 0.35rem 0;
+    text-wrap: pretty;
 }
 
 .info-text p+p {

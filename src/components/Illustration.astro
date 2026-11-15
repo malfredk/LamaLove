@@ -1,0 +1,22 @@
+---
+import { getImage } from "astro:assets";
+import { illustrations, type IllustrationName } from "./illustrations";
+
+interface Props {
+  name: IllustrationName;
+}
+
+const { name } = Astro.props;
+const source = illustrations[name];
+const image = await getImage({ src: source, format: "webp" });
+
+// Give every sketch the same area, so tall and wide drawings carry equal weight.
+const ratio = source.width / source.height;
+const style = [
+  `--illustration: url("${image.src}")`,
+  `--illustration-width: ${Math.sqrt(ratio).toFixed(3)}`,
+  `--illustration-height: ${(1 / Math.sqrt(ratio)).toFixed(3)}`,
+].join("; ");
+---
+
+<span class="info-illustration" style={style} aria-hidden="true"></span>

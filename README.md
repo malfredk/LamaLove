@@ -40,6 +40,14 @@ Add or remove photos directly in this folder without changing any code. Supporte
 
 The local development server picks up changes automatically. Rebuild and redeploy the site for changes to appear on the published website.
 
+## Information page illustrations
+
+The boxes on the information page can show a hand-drawn sketch. Sketches live in `src/assets/illustrations/` as black strokes on a transparent PNG and are registered by name in `src/components/illustrations.ts`. Give an info item an `illustration` name in `src/pages/information.astro` to show it.
+
+Each sketch is used as a CSS mask, so it is drawn in the page colour (`--text`) and changes with it. Draw new sketches in black on white and remove the white background before adding them; any grey becomes partial transparency. Every sketch is scaled to the same area, so tall and wide drawings carry equal weight. Draw all sketches at a similar size and line weight so their strokes match once scaled.
+
+On wide screens the sketch sits beside the content and alternates left and right from box to box, while the title and text stay centred. On phones it sits above the title.
+
 # Astro Starter Kit: Basics
 
 ```sh
