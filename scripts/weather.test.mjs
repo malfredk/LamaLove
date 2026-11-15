@@ -2,13 +2,29 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FALLBACK, osloTime, selectForecast as select, selectLocationForecast as selectLocation, selectSubseasonalForecast as selectSubseasonal } from './weather.mjs';
 import { WEDDING_DATE, WEATHER_START, daysBefore, isForecastWindow } from '../src/config/wedding.mjs';
-import { WEATHER_MESSAGES, weatherIntroduction } from '../src/config/weather-copy.mjs';
+import { WEATHER_MESSAGES, weatherIllustration, weatherIntroduction } from '../src/config/weather-copy.mjs';
 
 // Fixtures deliberately use a fixed date, independent of the site's configured date.
 const FIXTURE_DATE = '2027-09-04';
 const selectForecast = (location, subseasonal) => select(location, subseasonal, FIXTURE_DATE);
 const selectLocationForecast = payload => selectLocation(payload, FIXTURE_DATE);
 const selectSubseasonalForecast = payload => selectSubseasonal(payload, FIXTURE_DATE);
+
+test('couple illustrations distinguish reliable weather from uncertain forecasts', () => {
+  assert.equal(weatherIllustration(FALLBACK), 'couple-uncertain');
+  assert.equal(weatherIllustration(undefined), 'couple-uncertain');
+  for (const precipitationProbability of [15, 53, 80]) {
+    assert.equal(weatherIllustration({ source: 'subseasonal', icon: 'rain', precipitationProbability }), 'couple-uncertain');
+  }
+  assert.equal(weatherIllustration({ source: 'locationforecast', icon: 'sun' }), 'couple-sun');
+  for (const icon of ['cloud', 'partly-cloudy']) {
+    assert.equal(weatherIllustration({ source: 'locationforecast', icon }), 'couple-clouds');
+  }
+  for (const icon of ['rain', 'thunder', 'snow']) {
+    assert.equal(weatherIllustration({ source: 'locationforecast', icon }), 'couple-umbrella');
+  }
+  assert.equal(weatherIllustration({ source: 'locationforecast', icon: 'unknown' }), 'couple-uncertain');
+});
 
 test('weather introductions distinguish fallback, sunshine, dry clouds, and rain', () => {
   assert.equal(weatherIntroduction(FALLBACK), WEATHER_MESSAGES.fallback);

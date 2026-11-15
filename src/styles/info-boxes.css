@@ -32,9 +32,24 @@
     width: calc(var(--illustration-size) * var(--illustration-width));
     height: calc(var(--illustration-size) * var(--illustration-height));
     margin: 0 auto 0.75rem;
+}
+
+.info-illustration__ink {
+    display: block;
+    width: 100%;
+    height: 100%;
     background-color: var(--text);
     -webkit-mask: var(--illustration) center / contain no-repeat;
     mask: var(--illustration) center / contain no-repeat;
+}
+
+a.info-illustration:hover {
+    opacity: 0.75;
+}
+
+a.info-illustration:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
 }
 
 /* Wider screens give the sketch its own column, alternating left and right from box to box.

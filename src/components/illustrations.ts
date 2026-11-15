@@ -1,6 +1,9 @@
 import type { ImageMetadata } from "astro";
 import champagne from "../assets/illustrations/champagne.png";
 import coupleUmbrella from "../assets/illustrations/couple-umbrella.png";
+import coupleSun from "../assets/illustrations/couple-sun.png";
+import coupleClouds from "../assets/illustrations/couple-clouds.png";
+import coupleUncertain from "../assets/illustrations/couple-uncertain.png";
 import dressAndTuxedo from "../assets/illustrations/dress-and-tuxedo.png";
 import envelope from "../assets/illustrations/envelope.png";
 import gift from "../assets/illustrations/gift.png";
@@ -13,6 +16,9 @@ export const illustrations = {
   "dress-and-tuxedo": dressAndTuxedo,
   gift,
   "couple-umbrella": coupleUmbrella,
+  "couple-sun": coupleSun,
+  "couple-clouds": coupleClouds,
+  "couple-uncertain": coupleUncertain,
   champagne,
   "rocking-horse": rockingHorse,
   quill,

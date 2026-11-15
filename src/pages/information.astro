@@ -28,7 +28,6 @@ const infoItems: {
   },
   {
     title: "Vær",
-    illustration: "couple-umbrella",
     forecast: true,
     lines: [],
   },
@@ -60,11 +59,8 @@ const contacts = [
 <Layout title="L&M" activePage="information">
   <InfoBoxes items={[]}>
     {infoItems.map((item) => (
-      <InfoBox title={item.title} lines={item.lines} illustration={item.illustration}>
-        {item.forecast && (
-          <WeatherForecast />
-        )}
-      </InfoBox>
+      item.forecast ? <WeatherForecast /> :
+        <InfoBox title={item.title} lines={item.lines} illustration={item.illustration} />
     ))}
     <InfoBox title="Kontakt" lines={[]} illustration="envelope">
       <Fragment slot="text">

@@ -1,10 +1,10 @@
 // Edit the weather introduction texts here.
 export const WEATHER_MESSAGES = {
-  fallback: 'Når man gifter seg i Bergen i september, er det gode sjanser for regn og dermed et lykkelig ekteskap.',
-  dry: 'Opplett er fint vær i Bergen!',
-  sun: 'Sol i Bergen!',
-  rain: 'Det skulle bare mangle at det ikke regner i Bergen!',
-  notRain: 'Vi krysser fingrene for opplett!',
+  fallback: 'Når man gifter seg i Bergen i september, er det gode sjanser for regn og dermed et lykkelig ekteskap. Mer presis værmelding kommer når det nærmer seg.',
+  dry: 'Det er meldt opplett 4. september. Dette regnes som fint vær i Bergen!',
+  sun: 'Det er meldt sol i Bergen 4. september!',
+  rain: 'Værmeldingen tilsier at det blir regn på bryllupsdagen, og dermed et lykkelig ekteskap.',
+  notRain: 'Enn så lenge er det ikke meldt regn. Vi krysser fingrene for opplett!',
   other: 'Uansett vær gleder vi oss til å feire dagen sammen med dere!',
 };
 
@@ -21,4 +21,13 @@ export function weatherIntroduction(forecast) {
   if (['rain', 'thunder'].includes(forecast.icon)) return WEATHER_MESSAGES.rain;
   if (['cloud', 'partly-cloudy'].includes(forecast.icon)) return WEATHER_MESSAGES.dry;
   return WEATHER_MESSAGES.other;
+}
+
+export function weatherIllustration(forecast) {
+  if (!forecast?.source || forecast.source === 'fallback') return 'couple-umbrella';
+  if (forecast.source === 'subseasonal') return 'couple-uncertain';
+  if (forecast.icon === 'sun') return 'couple-sun';
+  if (['cloud', 'partly-cloudy'].includes(forecast.icon)) return 'couple-clouds';
+  if (['rain', 'thunder', 'snow'].includes(forecast.icon)) return 'couple-umbrella';
+  return 'couple-uncertain';
 }

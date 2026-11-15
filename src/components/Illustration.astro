@@ -4,9 +4,12 @@ import { illustrations, type IllustrationName } from "./illustrations";
 
 interface Props {
   name: IllustrationName;
+  href?: string;
+  label?: string;
 }
 
-const { name } = Astro.props;
+const { name, href, label } = Astro.props;
+const Tag = href ? 'a' : 'span';
 const source = illustrations[name];
 const image = await getImage({ src: source, format: "webp" });
 
@@ -19,4 +22,6 @@ const style = [
 ].join("; ");
 ---
 
-<span class="info-illustration" style={style} aria-hidden="true"></span>
+<Tag class="info-illustration" style={style} href={href} target={href ? '_blank' : undefined} rel={href ? 'noopener noreferrer' : undefined} aria-label={label} aria-hidden={href ? undefined : 'true'}>
+  <span class="info-illustration__ink" aria-hidden="true"></span>
+</Tag>
