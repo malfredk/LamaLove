@@ -5,6 +5,7 @@
 
     /* Normal text, including paragraphs, captions, and weather. */
     --page-text-size: 1.18rem;
+    --page-text-small-size: calc(var(--page-text-size) * 0.7);
     --page-text-weight: 500;
     --page-text-spacing: 0.02em;
     --page-text-line-height: 1.65;
@@ -16,6 +17,7 @@
     --page-subtitle-weight: 500;
     --page-subtitle-spacing: 0.14em;
     --page-subtitle-line-height: 1.1;
+    --page-subsubtitle-size: var(--page-text-size);
 }
 
 /* Responsive typography is shared by all pages too. */
@@ -53,13 +55,30 @@ textarea {
     letter-spacing: var(--page-text-spacing);
 }
 
+.page-text-small {
+    font-size: var(--page-text-small-size);
+    letter-spacing: var(--page-text-spacing);
+}
+
 .page-subtitle,
 .section h2 {
     font-size: var(--page-subtitle-size);
     font-weight: var(--page-subtitle-weight);
+    text-transform: uppercase;
+}
+
+.page-subsubtitle {
+    font-size: var(--page-subsubtitle-size);
+    font-weight: var(--page-text-emphasis-weight);
+    font-style: italic;
+    text-transform: none;
+}
+
+.page-subtitle,
+.page-subsubtitle,
+.section h2 {
     line-height: var(--page-subtitle-line-height);
     letter-spacing: var(--page-subtitle-spacing);
-    text-transform: uppercase;
 }
 
 .timeline-details h3 {

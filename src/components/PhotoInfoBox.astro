@@ -42,9 +42,9 @@ const { title, lines, photos } = Astro.props;
                 />
               </button>
               <figcaption>
-                {photo.category && <p class="category">{photo.category}</p>}
-                {photo.description && <p class="description">{photo.description}</p>}
-                <p class="location">
+                {photo.category && <h4 class="category page-subsubtitle">{photo.category}</h4>}
+                {photo.description && <p class="description page-text-small">{photo.description}</p>}
+                <p class="location page-text-small">
                   <svg
                     viewBox="0 0 24 24"
                     fill="currentColor"
@@ -116,10 +116,10 @@ const { title, lines, photos } = Astro.props;
     connectedCallback() {
       this.slides = Array.from(this.querySelectorAll("figure"));
       this.currentIndex = Math.max(0, this.slides.findIndex((slide) => !slide.hidden));
+      this.slideContainer = this.querySelector<HTMLElement>(".slides")!;
       this.observePhotoSize();
       if (this.slides.length < 2) return;
 
-      this.slideContainer = this.querySelector<HTMLElement>(".slides")!;
       this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
       this.canHover = window.matchMedia("(hover: hover)");
       this.events = new AbortController();
@@ -144,16 +144,23 @@ const { title, lines, photos } = Astro.props;
       const box = this.closest<HTMLElement>(".photo-info-box");
       if (!box) return;
 
+      const controls = this.querySelector<HTMLElement>(".carousel-controls");
       let previousOverhead = -1;
       const fitPhoto = () => {
         const boxStyles = getComputedStyle(box);
+        const frameStyles = getComputedStyle(this.slideContainer);
+        const frameInsets = parseFloat(frameStyles.paddingTop) + parseFloat(frameStyles.paddingBottom) +
+          parseFloat(frameStyles.borderTopWidth) + parseFloat(frameStyles.borderBottomWidth);
+        const controlsHeight = controls
+          ? controls.getBoundingClientRect().height + parseFloat(getComputedStyle(controls).marginTop)
+          : 0;
         const captionHeights = this.slides.map((slide) => {
           const caption = slide.querySelector("figcaption")!;
           return caption.getBoundingClientRect().height + parseFloat(getComputedStyle(caption).marginTop);
         });
         // Fit the photo and what follows it, not the title and intro, which scroll away.
         // Measure only content independent of photo size to avoid resize feedback at browser zoom levels.
-        const overhead = Math.ceil(Math.max(...captionHeights) + parseFloat(boxStyles.paddingBottom));
+        const overhead = Math.ceil(Math.max(...captionHeights) + frameInsets + controlsHeight + parseFloat(boxStyles.paddingBottom));
         if (overhead === previousOverhead) return;
         previousOverhead = overhead;
         this.style.setProperty("--box-overhead", `${overhead}px`);
