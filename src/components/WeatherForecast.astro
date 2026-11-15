@@ -43,7 +43,7 @@ const iconViewBox = icon === 'partly-cloudy' ? '0 0 96 58'
 
 <p class="weather-introduction">{weatherIntroduction(forecast)}</p>
 <div class="weather-forecast">
-  <p class="weather-forecast__date text-small"><time datetime={WEDDING_DATE}>{WEDDING_DATE_LABEL}</time>, Bergen</p>
+  <p class="weather-forecast__date page-text-small"><time datetime={WEDDING_DATE}>{WEDDING_DATE_LABEL}</time>, Bergen</p>
   <a class="weather-forecast__icon-link" href={forecastUrl} target="_blank" rel="noopener noreferrer" aria-label="Se værvarselet for Bergen på Yr">
   <svg class="weather-forecast__icon" viewBox={iconViewBox} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <defs>
@@ -64,7 +64,7 @@ const iconViewBox = icon === 'partly-cloudy' ? '0 0 96 58'
   </a>
   {chanceOfRain && <p class="weather-forecast__description">{chanceOfRain}</p>}
   {temperatureText && <p class="weather-forecast__temperature">{temperatureText}</p>}
-  {sourceCredit && <p class="weather-forecast__note text-small">
+  {sourceCredit && <p class="weather-forecast__note page-text-small">
     <a href={forecastUrl} title="Forenklet værvisning basert på data fra Meteorologisk institutt (MET Norway), tilgjengelig under NLOD 2.0 og CC BY 4.0.">{sourceCredit}</a>
   </p>}
 </div>
