@@ -2,21 +2,10 @@
 import savedForecast from '../data/weather.json';
 import '../styles/weather-forecast.css';
 import { WEDDING_DATE } from '../config/wedding.mjs';
-import { FALLBACK } from '../../scripts/weather.mjs';
+import { FALLBACK, FORECAST_URL } from '../config/weather.mjs';
+import type { Forecast } from '../config/weather.mjs';
 import InfoBox from './InfoBox.astro';
-import { weatherIllustration, weatherIntroduction } from '../config/weather-copy.mjs';
-
-interface Forecast {
-  source?: string;
-  icon?: string;
-  description?: string;
-  precipitationProbability?: number;
-  temperature?: number;
-  temperatureMin?: number;
-  temperatureMax?: number;
-  period?: string;
-  updatedAt?: string | null;
-}
+import { weatherIllustration, weatherIntroduction, weatherRainChance, weatherTemperature } from '../weather/presentation.mjs';
 
 interface Props {
   forecast?: Forecast;
@@ -27,25 +16,19 @@ interface Props {
 const defaultForecast: Forecast = savedForecast.date === WEDDING_DATE ? savedForecast : FALLBACK;
 const { forecast = defaultForecast, title = 'Vær' } = Astro.props;
 const illustration = weatherIllustration(forecast);
-const temperature = (value: number) => `${Math.round(value)}°`;
-const chanceOfRain = forecast.source === 'subseasonal' ? forecast.description?.replace(/\s+%/g, '%') : null;
-const temperatureText = forecast.temperature !== undefined
-  ? temperature(forecast.temperature)
-  : forecast.temperatureMin !== undefined && forecast.temperatureMax !== undefined
-    ? `${temperature(forecast.temperatureMin)} til ${temperature(forecast.temperatureMax)}`
-    : null;
+const chanceOfRain = weatherRainChance(forecast);
+const temperatureText = weatherTemperature(forecast);
 const sourceCredit = ['locationforecast', 'subseasonal'].includes(forecast.source ?? '')
   ? 'Værdata fra Meteorologisk institutt' : null;
-const forecastUrl = 'https://www.yr.no/nb/v%C3%A6rvarsel/daglig-tabell/1-92416/Norge/Vestland/Bergen/Bergen';
 ---
 
-<InfoBox title={title} lines={[]} illustration={illustration} illustrationHref={forecastUrl} illustrationLabel="Se værvarselet for Bergen på Yr">
+<InfoBox title={title} lines={[]} illustration={illustration} illustrationHref={FORECAST_URL} illustrationLabel="Se værvarselet for Bergen på Yr">
   <p class="weather-introduction">{weatherIntroduction(forecast)}</p>
   {(chanceOfRain || temperatureText || sourceCredit) && <div class="weather-forecast">
     {chanceOfRain && <p class="weather-forecast__description">{chanceOfRain}</p>}
     {temperatureText && <p class="weather-forecast__temperature">{temperatureText}</p>}
     {sourceCredit && <p class="weather-forecast__note page-text-small">
-      <a href={forecastUrl} title="Forenklet værvisning basert på data fra Meteorologisk institutt (MET Norway), tilgjengelig under NLOD 2.0 og CC BY 4.0.">{sourceCredit}</a>
+      <a href={FORECAST_URL} title="Forenklet værvisning basert på data fra Meteorologisk institutt (MET Norway), tilgjengelig under NLOD 2.0 og CC BY 4.0.">{sourceCredit}</a>
     </p>}
   </div>}
 </InfoBox>

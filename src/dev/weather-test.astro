@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import InfoBoxes from '../components/InfoBoxes.astro';
 import InfoBox from '../components/InfoBox.astro';
 import WeatherForecast from '../components/WeatherForecast.astro';
-import { FALLBACK } from '../../scripts/weather.mjs';
+import { FALLBACK } from '../config/weather.mjs';
 
 const scenarios = [
   { title: 'Ingen værmelding ennå', forecast: FALLBACK },
