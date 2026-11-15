@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { FALLBACK, osloTime, selectForecast } from './weather.mjs';
+import { osloTime, selectForecast } from './weather.mjs';
+import { FALLBACK, WEATHER_LOCATION } from '../src/config/weather.mjs';
 import { WEDDING_DATE, LOCATION_FORECAST_DAYS, isForecastWindow } from '../src/config/wedding.mjs';
 
 const FORECAST_FILE = new URL('../src/data/weather.json', import.meta.url);
@@ -36,20 +37,21 @@ function createCacheEntry(payload, response, previous) {
   };
 }
 
-async function fetchForecast(product, cache) {
+export async function fetchForecast(product, cache, request = fetch) {
   const previous = cache[product];
   if (previous && Date.parse(previous.expires) > Date.now()) return previous.payload;
   const headers = forecastRequestHeaders(previous);
   try {
-    const endpoint = `https://api.met.no/weatherapi/${product}/complete?lat=60.3929&lon=5.3242`;
-    const response = await fetch(endpoint, { headers, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    const { latitude, longitude } = WEATHER_LOCATION;
+    const endpoint = `https://api.met.no/weatherapi/${product}/complete?lat=${latitude}&lon=${longitude}`;
+    const response = await request(endpoint, { headers, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
     validateForecastResponse(response, product);
     const payload = response.status === 304 ? previous?.payload : await response.json();
     if (!Array.isArray(payload?.properties?.timeseries)) throw new Error('Invalid forecast response');
     cache[product] = createCacheEntry(payload, response, previous);
     return payload;
   } catch (error) {
-    console.warn(`${product}: ${error.message}; using the saved forecast if available.`);
+    console.warn(`${product}: ${error.message}; using the cached API response if available.`);
     return previous?.payload ?? null;
   }
 }
@@ -89,7 +91,7 @@ async function updateWeather() {
     const saved = await readJson(FORECAST_FILE, null);
     if (saved?.date === WEDDING_DATE) {
       console.log('Wedding date has passed; preserving the last saved forecast.');
-      process.exit(0);
+      return;
     }
   }
 
@@ -97,4 +99,4 @@ async function updateWeather() {
   console.log(`Weather for ${WEDDING_DATE}: ${forecast.source} — ${forecast.description}`);
 }
 
-await updateWeather();
+if (import.meta.main) await updateWeather();

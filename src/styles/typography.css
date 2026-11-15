@@ -10,7 +10,6 @@
     --page-text-spacing: 0.02em;
     --page-text-line-height: 1.65;
     --page-text-emphasis-weight: 700;
-    --small-text-size: calc(var(--page-text-size) * 0.75);
 
     /* Subtitles on every page. */
     --page-subtitle-size: clamp(1.55rem, 2.3vw, 2rem);
@@ -48,11 +47,6 @@ select,
 textarea {
     font: inherit;
     letter-spacing: inherit;
-}
-
-.text-small {
-    font-size: var(--small-text-size);
-    letter-spacing: var(--page-text-spacing);
 }
 
 .page-text-small {

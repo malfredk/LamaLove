@@ -14,6 +14,12 @@ export const WEATHER_START = daysBefore(WEDDING_DATE, FORECAST_DAYS);
 export const WEDDING_DATE_LABEL = new Intl.DateTimeFormat('nb-NO', {
   timeZone: TIME_ZONE, day: 'numeric', month: 'long', year: 'numeric',
 }).format(new Date(`${WEDDING_DATE}T12:00:00Z`));
+export const WEDDING_DAY_LABEL = new Intl.DateTimeFormat('nb-NO', {
+  timeZone: TIME_ZONE, day: 'numeric', month: 'long',
+}).format(new Date(`${WEDDING_DATE}T12:00:00Z`));
+export const WEDDING_MONTH_LABEL = new Intl.DateTimeFormat('nb-NO', {
+  timeZone: TIME_ZONE, month: 'long',
+}).format(new Date(`${WEDDING_DATE}T12:00:00Z`));
 
 export function isForecastWindow(today, weddingDate = WEDDING_DATE) {
   return today >= daysBefore(weddingDate, FORECAST_DAYS) && today <= weddingDate;

@@ -1,14 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FALLBACK, osloTime, selectForecast as select, selectLocationForecast as selectLocation, selectSubseasonalForecast as selectSubseasonal } from './weather.mjs';
+import { osloTime, selectForecast as select, selectLocationForecast as selectLocation, selectSubseasonalForecast as selectSubseasonal } from './weather.mjs';
+import { FALLBACK } from '../src/config/weather.mjs';
+import { fetchForecast } from './update-weather.mjs';
 import { WEDDING_DATE, WEATHER_START, daysBefore, isForecastWindow } from '../src/config/wedding.mjs';
-import { WEATHER_MESSAGES, weatherIntroduction } from '../src/config/weather-copy.mjs';
+import { WEATHER_MESSAGES } from '../src/config/weather-copy.mjs';
+import { weatherIllustration, weatherIntroduction, weatherRainChance, weatherTemperature } from '../src/weather/presentation.mjs';
 
 // Fixtures deliberately use a fixed date, independent of the site's configured date.
 const FIXTURE_DATE = '2027-09-04';
 const selectForecast = (location, subseasonal) => select(location, subseasonal, FIXTURE_DATE);
 const selectLocationForecast = payload => selectLocation(payload, FIXTURE_DATE);
 const selectSubseasonalForecast = payload => selectSubseasonal(payload, FIXTURE_DATE);
+
+test('couple illustrations distinguish reliable weather from uncertain forecasts', () => {
+  assert.equal(weatherIllustration(FALLBACK), 'couple-umbrella');
+  assert.equal(weatherIllustration(undefined), 'couple-umbrella');
+  for (const precipitationProbability of [15, 53, 80]) {
+    assert.equal(weatherIllustration({ source: 'subseasonal', icon: 'rain', precipitationProbability }), 'couple-uncertain');
+  }
+  assert.equal(weatherIllustration({ source: 'locationforecast', icon: 'sun' }), 'couple-sun');
+  for (const icon of ['cloud', 'partly-cloudy']) {
+    assert.equal(weatherIllustration({ source: 'locationforecast', icon }), 'couple-clouds');
+  }
+  for (const icon of ['rain', 'thunder', 'snow']) {
+    assert.equal(weatherIllustration({ source: 'locationforecast', icon }), 'couple-umbrella');
+  }
+  assert.equal(weatherIllustration({ source: 'locationforecast', icon: 'unknown' }), 'couple-uncertain');
+});
 
 test('weather introductions distinguish fallback, sunshine, dry clouds, and rain', () => {
   assert.equal(weatherIntroduction(FALLBACK), WEATHER_MESSAGES.fallback);
@@ -102,4 +121,82 @@ test('selection follows a changed wedding date, rejecting previous-date data', (
   assert.equal(forecast.period, '12:00–18:00');
   assert.equal(select(null, payload(daily()), target).source, 'fallback');
   assert.equal(selectSubseasonal(payload(daily('2028-01-10T00:00:00Z')), target).date, target);
+});
+
+test('invalid entries cannot hide a later usable forecast', () => {
+  const invalidTime = { ...daily(), time: 'invalid' };
+  const invalidProbability = daily();
+  invalidProbability.data.next_24_hours.details.probability_of_precipitation = 150;
+  assert.equal(selectSubseasonalForecast(payload(invalidTime, invalidProbability, daily())).precipitationProbability, 73.4);
+  assert.equal(selectLocationForecast(payload({ ...location('invalid') }, location('2027-09-04T10:00:00Z'))).period, '12:00–18:00');
+  const invertedTemperatures = daily();
+  invertedTemperatures.data.next_24_hours.details.air_temperature_min = 30;
+  assert.equal(selectSubseasonalForecast(payload(invertedTemperatures)), null);
+});
+
+test('rain probability drives both the introduction and displayed percentage', () => {
+  const forecast = { source: 'subseasonal', precipitationProbability: 49.6, description: '80% sjanse for regn' };
+  assert.equal(weatherRainChance(forecast), '50% sjanse for regn');
+  assert.equal(weatherIntroduction(forecast), WEATHER_MESSAGES.rain);
+  assert.equal(weatherIntroduction({ ...forecast, precipitationProbability: 49.4 }), WEATHER_MESSAGES.notRain);
+  assert.equal(weatherIntroduction({ ...forecast, precipitationProbability: 50 }), WEATHER_MESSAGES.rain);
+  assert.equal(weatherRainChance({ source: 'subseasonal', description: '53 % sjanse for regn' }), '53% sjanse for regn');
+  for (const precipitationProbability of [-1, 101, NaN, Infinity]) {
+    const invalid = { source: 'subseasonal', precipitationProbability };
+    assert.equal(weatherRainChance(invalid), null);
+    assert.equal(weatherIntroduction(invalid), WEATHER_MESSAGES.other);
+  }
+});
+
+test('temperature display handles zero, missing values and invalid ranges', () => {
+  assert.equal(weatherTemperature({ temperature: 0 }), '0°');
+  assert.equal(weatherTemperature({ temperatureMin: 10.6, temperatureMax: 17.2 }), '11° til 17°');
+  for (const forecast of [{}, { temperature: null }, { temperature: NaN }, { temperature: Infinity }, { temperatureMin: 10 }, { temperatureMin: 20, temperatureMax: 10 }]) {
+    assert.equal(weatherTemperature(forecast), null);
+  }
+});
+
+test('fresh raw API cache avoids a request', async () => {
+  const cachedPayload = payload(daily());
+  const cache = { test: { payload: cachedPayload, expires: '2099-01-01T00:00:00Z' } };
+  const forecast = await fetchForecast('test', cache, () => assert.fail('Fresh cache must not call the API'));
+  assert.equal(forecast, cachedPayload);
+});
+
+test('expired API cache is revalidated and reused for HTTP 304', async () => {
+  const cachedPayload = payload(daily());
+  const lastModified = 'Wed, 01 Sep 2027 12:00:00 GMT';
+  const cache = { test: { payload: cachedPayload, expires: '2000-01-01T00:00:00Z', lastModified } };
+  const forecast = await fetchForecast('test', cache, async (url, options) => {
+    assert.equal(options.headers['If-Modified-Since'], lastModified);
+    assert(options.headers['User-Agent'].includes('LamaLove'));
+    return new Response(null, { status: 304, headers: { expires: 'Thu, 02 Sep 2027 12:00:00 GMT' } });
+  });
+  assert.equal(forecast, cachedPayload);
+  assert.equal(cache.test.expires, 'Thu, 02 Sep 2027 12:00:00 GMT');
+});
+
+test('successful API response replaces expired cached payload', async () => {
+  const nextPayload = payload(daily());
+  const cache = {};
+  const forecast = await fetchForecast('test', cache, async () => new Response(JSON.stringify(nextPayload), {
+    headers: { expires: 'Thu, 02 Sep 2027 12:00:00 GMT' },
+  }));
+  assert.deepEqual(forecast, nextPayload);
+  assert.deepEqual(cache.test.payload, nextPayload);
+});
+
+test('failed or malformed API responses retain the cached payload', async (context) => {
+  context.mock.method(console, 'warn', () => {});
+  const cachedPayload = payload(daily());
+  for (const request of [
+    async () => { throw new Error('Timeout'); },
+    async () => new Response(null, { status: 503 }),
+    async () => new Response('{}'),
+  ]) {
+    const cache = { test: { payload: cachedPayload, expires: '2000-01-01T00:00:00Z' } };
+    assert.equal(await fetchForecast('test', cache, request), cachedPayload);
+    assert.equal(await fetchForecast('test', {}, request), null);
+    assert.equal(cache.test.payload, cachedPayload);
+  }
 });
