@@ -1,32 +1,25 @@
-.photo-info-box {
+.info-box.photo-info-box {
     container-type: inline-size;
+    max-width: 770px;
 }
 
 /* Keep photos usable at high zoom even when the text fills the viewport. */
 .photo-info-box visitor-carousel {
-    --photo-height: min(calc(100cqw * 4 / 3), max(12rem, calc(100svh - var(--box-overhead, 18rem) - 32px)));
+    --frame-padding: 0.75rem;
+    --photo-height: min(calc((100cqw - 2 * var(--frame-padding) - 2px) * 4 / 3), max(12rem, calc(110svh - var(--box-overhead, 22rem) - 32px)));
     --controls-height: 1.75rem;
     display: block;
-    position: relative;
     width: 100%;
     margin: 1.5rem 0 0;
-}
-
-/* One stationary shadow avoids stacking shadows while photos crossfade. */
-.photo-info-box visitor-carousel::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto;
-    width: min(100%, calc(var(--photo-height) * 3 / 4));
-    margin-inline: auto;
-    height: var(--photo-height);
-    box-shadow: 0 4px 10px rgb(0 0 0 / 18%);
-    pointer-events: none;
 }
 
 /* Reserve caption space so changing slides cannot shift the layout. */
 .photo-info-box .slides {
     display: grid;
+    width: min(100%, calc(var(--photo-height) * 3 / 4 + 2 * var(--frame-padding) + 2px));
+    margin-inline: auto;
+    border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+    padding: var(--frame-padding);
 }
 
 .photo-info-box figure {
@@ -84,40 +77,43 @@
 }
 
 .photo-info-box figcaption {
-    margin-top: 0.75rem;
+    margin-top: 1rem;
+    overflow-wrap: anywhere;
 }
 
 .photo-info-box figcaption p {
     margin: 0;
 }
 
-.photo-info-box .location {
-    display: flex;
-    align-items: center;
+.photo-info-box .category {
+    margin: 0 0 0.5rem;
+}
+
+.photo-info-box .description {
+    text-wrap: pretty;
+}
+
+.photo-info-box figcaption .location {
+    display: grid;
+    /* Equal side columns center the text independently of the pin. */
+    grid-template-columns: 1.1em minmax(0, max-content) 1.1em;
     justify-content: center;
-    gap: 0.35rem;
+    column-gap: 0.35em;
+    text-wrap: balance;
 }
 
-.photo-info-box .location svg {
-    width: 1em;
-    height: 1em;
-    flex-shrink: 0;
-}
-
-.photo-info-box visitor-carousel:has(.carousel-controls) figcaption {
-    margin-top: calc(var(--controls-height) + 0.25rem);
+.photo-info-box figcaption .location svg {
+    width: 1.1em;
+    height: 1.1em;
+    margin-top: calc((1lh - 1.1em) / 2);
 }
 
 .photo-info-box .carousel-controls {
-    position: absolute;
-    top: calc(var(--photo-height) + 0.125rem);
-    left: 0;
-    right: 0;
-    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .photo-info-box .slide-indicators {
@@ -197,6 +193,12 @@
 .photo-info-box button:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+    .info-box.photo-info-box {
+        padding-inline: 1rem;
+    }
 }
 
 @media (pointer: coarse) {
