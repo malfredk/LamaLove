@@ -148,7 +148,7 @@
 }
 
 .photo-info-box visitor-carousel:has(.carousel-controls) figcaption {
-    margin-top: calc(var(--controls-height) + 0.25rem);
+    margin-top: calc(var(--controls-height) + 1rem);
 }
 
 .photo-info-box .carousel-controls {
