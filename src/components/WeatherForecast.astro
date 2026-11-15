@@ -17,8 +17,15 @@ interface Forecast {
   period?: string;
   updatedAt?: string | null;
 }
+
+interface Props {
+  forecast?: Forecast;
+  title?: string;
+}
+
 // A date change must never show a cached forecast for the previous date.
-const forecast: Forecast = savedForecast.date === WEDDING_DATE ? savedForecast : FALLBACK;
+const defaultForecast: Forecast = savedForecast.date === WEDDING_DATE ? savedForecast : FALLBACK;
+const { forecast = defaultForecast, title = 'Vær' } = Astro.props;
 const illustration = weatherIllustration(forecast);
 const temperature = (value: number) => `${Math.round(value)}°`;
 const chanceOfRain = forecast.source === 'subseasonal' ? forecast.description?.replace(/\s+%/g, '%') : null;
@@ -32,7 +39,7 @@ const sourceCredit = ['locationforecast', 'subseasonal'].includes(forecast.sourc
 const forecastUrl = 'https://www.yr.no/nb/v%C3%A6rvarsel/daglig-tabell/1-92416/Norge/Vestland/Bergen/Bergen';
 ---
 
-<InfoBox title="Vær" lines={[]} illustration={illustration} illustrationHref={forecastUrl} illustrationLabel="Se værvarselet for Bergen på Yr">
+<InfoBox title={title} lines={[]} illustration={illustration} illustrationHref={forecastUrl} illustrationLabel="Se værvarselet for Bergen på Yr">
   <p class="weather-introduction">{weatherIntroduction(forecast)}</p>
   {(chanceOfRain || temperatureText || sourceCredit) && <div class="weather-forecast">
     {chanceOfRain && <p class="weather-forecast__description">{chanceOfRain}</p>}

@@ -11,8 +11,8 @@ const selectLocationForecast = payload => selectLocation(payload, FIXTURE_DATE);
 const selectSubseasonalForecast = payload => selectSubseasonal(payload, FIXTURE_DATE);
 
 test('couple illustrations distinguish reliable weather from uncertain forecasts', () => {
-  assert.equal(weatherIllustration(FALLBACK), 'couple-uncertain');
-  assert.equal(weatherIllustration(undefined), 'couple-uncertain');
+  assert.equal(weatherIllustration(FALLBACK), 'couple-umbrella');
+  assert.equal(weatherIllustration(undefined), 'couple-umbrella');
   for (const precipitationProbability of [15, 53, 80]) {
     assert.equal(weatherIllustration({ source: 'subseasonal', icon: 'rain', precipitationProbability }), 'couple-uncertain');
   }

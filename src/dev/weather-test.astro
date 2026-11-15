@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro';
+import InfoBoxes from '../components/InfoBoxes.astro';
+import InfoBox from '../components/InfoBox.astro';
+import WeatherForecast from '../components/WeatherForecast.astro';
+import { FALLBACK } from '../../scripts/weather.mjs';
+
+const scenarios = [
+  { title: 'Ingen værmelding ennå', forecast: FALLBACK },
+  { title: 'Sol', forecast: { source: 'locationforecast', icon: 'sun', temperature: 22 } },
+  { title: 'Skyet og opplett', forecast: { source: 'locationforecast', icon: 'cloud', temperature: 16 } },
+  { title: 'Lettskyet', forecast: { source: 'locationforecast', icon: 'partly-cloudy', temperature: 18 } },
+  { title: 'Regn', forecast: { source: 'locationforecast', icon: 'rain', temperature: 14 } },
+  { title: 'Torden', forecast: { source: 'locationforecast', icon: 'thunder', temperature: 15 } },
+  { title: 'Snø eller sludd', forecast: { source: 'locationforecast', icon: 'snow', temperature: 2 } },
+  ...[15, 50, 80].map((probability) => ({
+    title: `Langtidsvarsel · ${probability}% regnsjanse`,
+    forecast: {
+      source: 'subseasonal',
+      icon: 'rain',
+      precipitationProbability: probability,
+      description: `${probability}% sjanse for regn`,
+      temperatureMin: 11,
+      temperatureMax: 17,
+    },
+  })),
+  { title: 'Langtidsvarsel uten regnsannsynlighet', forecast: { source: 'subseasonal' } },
+  { title: 'Ukjent værtype', forecast: { source: 'locationforecast', icon: 'unknown' } },
+];
+---
+
+<Layout title="Værscenarier · L&M" activePage="information">
+  <InfoBoxes items={[]}>
+    <InfoBox title="Værscenarier" lines={['Testvisning med eksempeldata. Hver boks viser samme værkomponent som informasjonssiden, med ulike værmeldinger. Klikk på brudeparet for å åpne Yr.']} />
+    {scenarios.map(({ title, forecast }) => <WeatherForecast title={title} forecast={forecast} />)}
+  </InfoBoxes>
+</Layout>

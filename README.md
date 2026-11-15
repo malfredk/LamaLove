@@ -1,3 +1,7 @@
+## Local weather preview
+
+Run `npm run dev` and open `/weather-test` to compare all weather scenarios using example data. The preview source lives in `src/dev/weather-test.astro` and can be committed. Astro registers this route only during development; `npm run build` excludes it, including builds run by GitHub Actions.
+
 ## Typography
 
 Edit `src/styles/typography.css` to change content text across the entire site. Normal text uses `--page-text-*` and subtitles use `--page-subtitle-*`.
