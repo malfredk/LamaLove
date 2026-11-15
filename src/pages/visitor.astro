@@ -11,20 +11,65 @@ import kodeMuseumPhoto from "../assets/bergen_photos/IMG_5700.JPG";
 import floeyenPhoto from "../assets/bergen_photos/IMG_0889.jpg";
 import skostredetPhoto from "../assets/bergen_photos/IMG_0208.JPG";
 
-// Each photo is captioned with its location.
+const mapSearch = (query: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+
+// Each photo is a recommendation for one kind of guest.
 const bergenPhotos = [
-  { src: lilleLungegaardsvannetPhoto, location: "Lille Lungegårdsvannet" },
-  { src: naturalHistoryMuseumPhoto, location: "Naturhistorisk museum" },
-  { src: bryggenPhoto, location: "Bryggen" },
-  { src: kodeMuseumPhoto, location: "Kode museum, Rasmus Meyer" },
-  { src: floeyenPhoto, location: "Fløyen" },
-  { src: skostredetPhoto, location: "Skostredet" },
+  {
+    src: lilleLungegaardsvannetPhoto,
+    location: "Lille Lungegårdsvannet",
+    category: "Den bakfulle",
+    description:
+      "En rolig runde rundt vannet midt i byen. Frisk luft, null bakker og god tid til å angre på den siste drinken.",
+    mapUrl: mapSearch("Lille Lungegårdsvannet, Bergen"),
+  },
+  {
+    src: naturalHistoryMuseumPhoto,
+    location: "Naturhistorisk museum",
+    category: "Hobbybiologen",
+    description:
+      "Hvalskjeletter, utstoppede dyr og rariteter fra hele verden. Perfekt for deg som har sett alle episodene med David Attenborough.",
+    mapUrl: mapSearch("Universitetsmuseet i Bergen, Naturhistorie"),
+  },
+  {
+    src: bryggenPhoto,
+    location: "Bryggen",
+    category: "Turisten",
+    description:
+      "Ingen Bergenstur uten et bilde foran de skjeve trehusene. Ikke la deg lure av julebutikken, det er fortsatt september.",
+    mapUrl: mapSearch("Bryggen, Bergen"),
+  },
+  {
+    src: kodeMuseumPhoto,
+    location: "Kode museum, Rasmus Meyer",
+    category: "Kultursnobben",
+    description:
+      "Munch, Astrup og J.C. Dahl under samme tak. Still deg opp foran et maleri, ta et skritt tilbake og lat som du har peiling.",
+    mapUrl: mapSearch("KODE Rasmus Meyer, Bergen"),
+  },
+  {
+    src: floeyenPhoto,
+    location: "Fløyen",
+    category: "Sprekingen",
+    description:
+      "Gå opp til Fløyen og få hele byen under deg. Fløibanen går også, men den teller ikke på Strava.",
+    mapUrl: mapSearch("Fløyen, Bergen"),
+  },
+  {
+    src: skostredetPhoto,
+    location: "Skostredet",
+    category: "Livsnyteren",
+    description:
+      "Små barer og kafeer i et koselig smug. Finn et bord i solen og bestill din favoritt.",
+    mapUrl: mapSearch("Skostredet, Bergen"),
+  },
 ];
 
 const attractions = {
   title: "Attraksjoner",
   lines: [
-    "Hvis du har litt tid til overs så har Bergen mye å by på. Eksempler på hvordan en østlending kan nyte byen:",
+    "Hvis du har litt tid til overs så har Bergen mye å by på. Her er noen tips til hvordan en østlending kan nyte byen, uansett hvilken type gjest du er:",
   ],
 };
 ---
