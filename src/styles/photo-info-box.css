@@ -242,43 +242,6 @@
     outline-offset: 3px;
 }
 
-/* Wide boxes put the caption beside the photo, so its text does not shrink the photo. */
-@container (min-width: 36rem) {
-    .photo-info-box visitor-carousel {
-        --caption-below: 0;
-        --photo-height: min(calc(62cqw * 4 / 3), max(12rem, calc(100svh - var(--box-overhead, 6rem) - 32px)));
-        --photo-width: calc(var(--photo-height) * 3 / 4);
-        padding-bottom: calc(var(--controls-height) + 0.25rem);
-    }
-
-    .photo-info-box visitor-carousel::before {
-        width: var(--photo-width);
-        margin-inline: 0;
-    }
-
-    .photo-info-box figure,
-    .photo-info-box figure[hidden] {
-        display: grid;
-        grid-template-columns: var(--photo-width) minmax(0, 1fr);
-        align-items: center;
-        column-gap: 1.75rem;
-    }
-
-    .photo-info-box .photo-navigation {
-        width: var(--photo-width);
-        margin-inline: 0;
-    }
-
-    .photo-info-box visitor-carousel:has(.carousel-controls) figcaption {
-        margin-top: 0;
-    }
-
-    .photo-info-box .carousel-controls {
-        right: auto;
-        width: var(--photo-width);
-    }
-}
-
 @media (pointer: coarse) {
     .photo-info-box visitor-carousel {
         --controls-height: 44px;

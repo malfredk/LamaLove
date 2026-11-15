@@ -147,21 +147,13 @@ const { title, lines, photos } = Astro.props;
       let previousOverhead = -1;
       const fitPhoto = () => {
         const boxStyles = getComputedStyle(box);
-        const carouselStyles = getComputedStyle(this);
-        // Captions sit beside the photo on wide boxes and only take height when stacked below it.
-        const captionBelow = carouselStyles.getPropertyValue("--caption-below").trim() !== "0";
-        const captionHeights = captionBelow
-          ? this.slides.map((slide) => {
-              const caption = slide.querySelector("figcaption")!;
-              return caption.getBoundingClientRect().height + parseFloat(getComputedStyle(caption).marginTop);
-            })
-          : [0];
+        const captionHeights = this.slides.map((slide) => {
+          const caption = slide.querySelector("figcaption")!;
+          return caption.getBoundingClientRect().height + parseFloat(getComputedStyle(caption).marginTop);
+        });
         // Fit the photo and what follows it, not the title and intro, which scroll away.
         // Measure only content independent of photo size to avoid resize feedback at browser zoom levels.
-        const overhead = Math.ceil(
-          Math.max(...captionHeights) + parseFloat(carouselStyles.paddingBottom) +
-          parseFloat(boxStyles.paddingBottom),
-        );
+        const overhead = Math.ceil(Math.max(...captionHeights) + parseFloat(boxStyles.paddingBottom));
         if (overhead === previousOverhead) return;
         previousOverhead = overhead;
         this.style.setProperty("--box-overhead", `${overhead}px`);
