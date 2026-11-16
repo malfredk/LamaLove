@@ -5,7 +5,7 @@
 
     /* Normal text, including paragraphs and captions. */
     --page-text-size: 1.18rem;
-    --page-text-small-size: calc(var(--page-text-size) * 0.7);
+    --page-text-small-size: calc(var(--page-text-size) * 0.8);
     --page-text-weight: 500;
     --page-text-spacing: 0.02em;
     --page-text-line-height: 1.65;
