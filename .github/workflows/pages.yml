@@ -27,7 +27,7 @@ jobs:
       - id: window
         env:
           EVENT: ${{ github.event_name }}
-        run: node scripts/check-weather-window.mjs
+        run: node src/features/information/weather/check-weather-window.mjs
 
   build:
     needs: check
@@ -47,10 +47,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
-            .cache
-            src/data/weather.json
-          key: wedding-weather-${{ hashFiles('src/config/wedding.mjs') }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: wedding-weather-${{ hashFiles('src/config/wedding.mjs') }}-
+            .cache/weather-api.json
+            src/features/information/weather/weather.json
+          key: wedding-weather-v2-${{ hashFiles('src/common/config/wedding.mjs', 'src/features/information/weather/config.mjs') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: wedding-weather-v2-${{ hashFiles('src/common/config/wedding.mjs', 'src/features/information/weather/config.mjs') }}-
       - run: npm ci
       - run: npm run test:weather
       - run: npm run weather:update

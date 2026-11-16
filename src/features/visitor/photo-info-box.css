@@ -1,0 +1,219 @@
+.info-box.photo-info-box {
+    container-type: inline-size;
+}
+
+/* Keep photos usable at high zoom even when the text fills the viewport. */
+.photo-info-box visitor-carousel {
+    --frame-padding: 0.75rem;
+    --photo-height: min(calc((100cqw - 2 * var(--frame-padding) - 2px) * 4 / 3), max(12rem, calc(110svh - var(--box-overhead, 22rem) - 32px)));
+    --controls-height: 1.75rem;
+    display: block;
+    width: 100%;
+    margin: 1.5rem 0 0;
+}
+
+/* Reserve caption space so changing slides cannot shift the layout. */
+.photo-info-box .slides {
+    display: grid;
+    width: min(100%, calc(var(--photo-height) * 3 / 4 + 2 * var(--frame-padding) + 2px));
+    margin-inline: auto;
+    border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+    padding: var(--frame-padding);
+}
+
+.photo-info-box figure {
+    grid-area: 1 / 1;
+    margin: 0;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.photo-info-box figure[hidden] {
+    display: block;
+    visibility: hidden;
+}
+
+.photo-info-box figure[hidden][data-leaving] {
+    visibility: visible;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.photo-info-box figure[data-leaving] figcaption,
+.photo-info-box .slide-indicator[data-leaving] span::before {
+    animation: caption-leave 300ms ease-in-out forwards;
+}
+
+.photo-info-box figure:not([hidden]) figcaption,
+.photo-info-box .slide-indicator[aria-current="true"] span::before {
+    animation: caption-arrive 800ms ease-in-out;
+}
+
+@keyframes caption-leave {
+    from { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
+}
+
+@keyframes caption-arrive {
+    0%, 25% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.photo-info-box figure:not([hidden]) .photo-navigation {
+    animation: photo-arrive 800ms ease-in-out;
+}
+
+@keyframes photo-arrive {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.photo-info-box figure img {
+    width: 100%;
+    height: var(--photo-height);
+    object-fit: contain;
+}
+
+.photo-info-box figcaption {
+    margin-top: 1rem;
+    overflow-wrap: anywhere;
+}
+
+.photo-info-box figcaption p {
+    margin: 0;
+}
+
+.photo-info-box .category {
+    margin: 0 0 0.5rem;
+}
+
+.photo-info-box .description {
+    text-wrap: pretty;
+}
+
+.photo-info-box figcaption .location {
+    display: grid;
+    /* Equal side columns center the text independently of the pin. */
+    grid-template-columns: 1.1em minmax(0, max-content) 1.1em;
+    justify-content: center;
+    column-gap: 0.35em;
+    text-wrap: balance;
+}
+
+.photo-info-box figcaption .location svg {
+    width: 1.1em;
+    height: 1.1em;
+    margin-top: calc((1lh - 1.1em) / 2);
+}
+
+.photo-info-box .carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.photo-info-box .slide-indicators {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+}
+
+.photo-info-box button.carousel-arrow {
+    flex-shrink: 0;
+}
+
+.photo-info-box .carousel-arrow svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.photo-info-box .slide-indicator span {
+    position: relative;
+    width: 0.4rem;
+    height: 0.4rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+}
+
+.photo-info-box .slide-indicator span::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+}
+
+.photo-info-box .slide-indicator[aria-current="true"] span::before {
+    opacity: 1;
+}
+
+.photo-info-box button {
+    display: grid;
+    place-items: center;
+    color: var(--text);
+    background: transparent;
+    border: 0;
+    padding: 0;
+    width: 44px;
+    font: inherit;
+    cursor: pointer;
+}
+
+.photo-info-box button.slide-indicator {
+    width: 1.1rem;
+}
+
+.photo-info-box .carousel-controls button {
+    height: var(--controls-height);
+}
+
+.photo-info-box .photo-navigation {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: pan-y pinch-zoom;
+    user-select: none;
+    display: block;
+    width: min(100%, calc(var(--photo-height) * 3 / 4));
+    height: auto;
+    margin-inline: auto;
+}
+
+.photo-info-box .photo-navigation:disabled {
+    cursor: default;
+}
+
+.photo-info-box button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+    .info-box.photo-info-box {
+        padding-inline: 1rem;
+    }
+}
+
+@media (pointer: coarse) {
+    .photo-info-box visitor-carousel {
+        --controls-height: 44px;
+    }
+
+    .photo-info-box button.slide-indicator {
+        width: 1.5rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .photo-info-box figure:not([hidden]) .photo-navigation,
+    .photo-info-box figure:not([hidden]) figcaption,
+    .photo-info-box .slide-indicator span::before {
+        animation: none;
+    }
+}

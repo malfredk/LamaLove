@@ -1,0 +1,29 @@
+---
+import "../styles/info-boxes.css";
+import Illustration from "./Illustration.astro";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  title: string;
+  lines: string[];
+  class?: string;
+  illustration?: ImageMetadata;
+  illustrationHref?: string;
+  illustrationLabel?: string;
+}
+
+const { title, lines, class: className, illustration, illustrationHref, illustrationLabel } = Astro.props;
+---
+
+<article class:list={["info-box", className]}>
+  {illustration && <Illustration source={illustration} href={illustrationHref} label={illustrationLabel} />}
+  <div class="info-body">
+    <h3 class="page-subtitle">{title}</h3>
+    <div class="info-text">
+      <slot name="text">
+        {lines.map((line) => <p>{line}</p>)}
+      </slot>
+    </div>
+    <slot />
+  </div>
+</article>

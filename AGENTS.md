@@ -29,11 +29,23 @@ need to request a separate clean-code pass.
 
 ## Astro and CSS
 
+- Organize feature-specific code as vertical slices under `src/features/<feature>/`.
+  Use the page features `home`, `information`, `visitor`, and `timeline`. Place
+  page-specific subfeatures under their page, such as `information/weather/`.
+  Colocate each feature's components, styles, configuration, logic, tests, data,
+  preview pages, and assets. Keep related modules separate when they have distinct
+  responsibilities; a feature folder does not require one large file.
 - Keep pages focused on composing layouts, content, and components. Move substantial
-  self-contained UI behavior into a component under `src/components/`.
-- Put component and page styles in descriptive files under `src/styles/` and import
-  them from their owning component or page. Avoid substantial inline `<style>`
-  blocks and duplicated declarations.
+  self-contained UI behavior into its owning feature. Keep reusable components,
+  layouts, styles, assets, and site configuration under `src/common/` when multiple
+  features use them. Common code must not import feature implementations or assets.
+- Put styles in descriptive files alongside their owning feature and import them
+  from the owning component or page. Use `src/common/styles/` for shared styles. Avoid
+  substantial inline `<style>` blocks and duplicated declarations.
+- Keep `src/pages/` as thin routing adapters. Colocate feature-specific CLI scripts
+  with their feature; npm commands and workflow files invoke them directly. Keep
+  Node-only filesystem and update code separate from modules imported by browser
+  code. Register local preview routes only during development.
 - When extracting scoped Astro CSS into an imported stylesheet, preserve its
   effective scope and check specificity so styles do not leak or change appearance.
 - Keep content and configuration separate from interaction logic when that makes
@@ -58,7 +70,7 @@ need to request a separate clean-code pass.
   complexity, unintended behavior changes, and CSS scope changes. Address relevant
   issues as part of the task rather than deferring an obvious cleanup.
 - Run `npm run build` for Astro, component, and stylesheet changes.
-- Run `npm run test:weather` for weather-script or weather-configuration changes.
+- Run `npm run test:weather` for weather-feature or weather-entry-point changes.
 - Use targeted behavior checks for substantial refactors, including relevant
   edge cases. Prefer existing tests; add tests for meaningful risks rather than
   mirroring implementation details. Do not call live APIs just to check a refactor.

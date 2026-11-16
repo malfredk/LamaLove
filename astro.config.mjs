@@ -12,7 +12,7 @@ export default defineConfig({
         if (command !== 'dev') return;
         injectRoute({
           pattern: '/weather-test',
-          entrypoint: new URL('./src/dev/weather-test.astro', import.meta.url),
+          entrypoint: new URL('./src/features/information/weather/WeatherPreview.astro', import.meta.url),
         });
       },
     },

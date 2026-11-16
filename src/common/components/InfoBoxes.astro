@@ -1,0 +1,19 @@
+---
+import InfoBox from "./InfoBox.astro";
+import "../styles/info-boxes.css";
+
+interface Props {
+  items: { title: string; lines: string[] }[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="info-page">
+  <div class="info-container">
+    <div class="info-list">
+      {items.map((item) => <InfoBox {...item} />)}
+      <slot />
+    </div>
+  </div>
+</section>

@@ -1,0 +1,126 @@
+---
+import Layout from "../../common/layouts/Layout.astro";
+import InfoBoxes from "../../common/components/InfoBoxes.astro";
+import InfoBox from "../../common/components/InfoBox.astro";
+import PhotoInfoBox from "./PhotoInfoBox.astro";
+import HotelDiscountCode from "./HotelDiscountCode.astro";
+import lilleLungegaardsvannetPhoto from "./assets/photos/IMG_0140.JPG";
+import naturalHistoryMuseumPhoto from "./assets/photos/IMG_0181.JPG";
+import bryggenPhoto from "./assets/photos/IMG_1822.JPG";
+import kodeMuseumPhoto from "./assets/photos/IMG_5700.JPG";
+import floeyenPhoto from "./assets/photos/IMG_0889.jpg";
+import skostredetPhoto from "./assets/photos/IMG_0208.JPG";
+
+const mapSearch = (query: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+
+// Each photo is a recommendation for one kind of guest.
+const bergenPhotos = [
+  {
+    src: lilleLungegaardsvannetPhoto,
+    location: "Lille Lungegårdsvannet",
+    category: "Den bakfulle",
+    description:
+      "En rolig runde rundt vannet midt i byen. Frisk luft, null bakker og god tid til å angre på den siste drinken.",
+    mapUrl: mapSearch("Lille Lungegårdsvannet, Bergen"),
+  },
+  {
+    src: naturalHistoryMuseumPhoto,
+    location: "Naturhistorisk museum",
+    category: "Hobbybiologen",
+    description:
+      "Hvalskjeletter, utstoppede dyr og rariteter fra hele verden. Perfekt for deg som har sett alle episodene med David Attenborough.",
+    mapUrl: mapSearch("Universitetsmuseet i Bergen, Naturhistorie"),
+  },
+  {
+    src: bryggenPhoto,
+    location: "Bryggen",
+    category: "Turisten",
+    description:
+      "Ingen Bergenstur uten et bilde foran de skjeve trehusene. Ikke la deg lure av julebutikken, det er fortsatt september.",
+    mapUrl: mapSearch("Bryggen, Bergen"),
+  },
+  {
+    src: kodeMuseumPhoto,
+    location: "Kode museum, Rasmus Meyer",
+    category: "Kultursnobben",
+    description:
+      "Munch, Astrup og J.C. Dahl under samme tak. Still deg opp foran et maleri, ta et skritt tilbake og lat som du har peiling.",
+    mapUrl: mapSearch("KODE Rasmus Meyer, Bergen"),
+  },
+  {
+    src: floeyenPhoto,
+    location: "Fløyen",
+    category: "Sprekingen",
+    description:
+      "Gå opp til Fløyen og få hele byen under deg. Fløibanen går også, men den teller ikke på Strava.",
+    mapUrl: mapSearch("Fløyen, Bergen"),
+  },
+  {
+    src: skostredetPhoto,
+    location: "Skostredet",
+    category: "Livsnyteren",
+    description:
+      "Små barer og kafeer i et koselig smug. Finn et bord i solen og bestill din favoritt.",
+    mapUrl: mapSearch("Skostredet, Bergen"),
+  },
+];
+
+const attractions = {
+  title: "Attraksjoner",
+  lines: [
+    "Hvis du har litt tid til overs så har Bergen mye å by på. Her er noen tips til hvordan en østlending kan nyte byen, uansett hvilken type gjest du er:",
+  ],
+};
+---
+
+<Layout title="L&M" activePage="visitor">
+  <InfoBoxes items={[]}>
+    <InfoBox title="Hotell" lines={[]}>
+      <Fragment slot="text">
+        <p>
+          Dersom du ønsker å bo på hotell <a href="https://www.hotelcharmante.no/" target="_blank" rel="noopener noreferrer">Charmante</a>,
+          hvor middagen og festen er, så kan du bruke koden
+          <HotelDiscountCode />
+          for litt rabatt.
+        </p>
+      </Fragment>
+    </InfoBox>
+    <InfoBox title="Spisesteder" lines={[]}>
+      <Fragment slot="text">
+        <p>
+          Vi regner med det blir strålende sol og anbefaler derfor turen innom
+          iskremkiosken{" "}
+          <a
+            href="https://maps.app.goo.gl/CjNibpxQCDifWSTb6"
+            target="_blank"
+            rel="noopener noreferrer">Hallaisen</a
+          >. Dersom det mot alle odds ikke skulle bli sol så har de òg varm drikke.
+        </p>
+        <p>
+          Dersom du skal ut og spise i løpet av oppholdet, anbefaler vi blant
+          annet{" "}
+          <a
+            href="https://maps.app.goo.gl/M7uNLrxRbiQU65KK9"
+            target="_blank"
+            rel="noopener noreferrer">Allmuen</a
+          >,{" "}
+          <a
+            href="https://maps.app.goo.gl/KjW2sueMG1uLLgcN6"
+            target="_blank"
+            rel="noopener noreferrer">Villani</a
+          > og{" "}
+          <a
+            href="https://maps.app.goo.gl/A4Tes9QhHbgLCQBA7"
+            target="_blank"
+            rel="noopener noreferrer">Frk. Schmidt</a
+          >.
+        </p>
+      </Fragment>
+    </InfoBox>
+    <PhotoInfoBox
+      {...attractions}
+      photos={bergenPhotos}
+    />
+  </InfoBoxes>
+</Layout>

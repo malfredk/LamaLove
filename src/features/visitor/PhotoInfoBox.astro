@@ -1,0 +1,288 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import InfoBox from "../../common/components/InfoBox.astro";
+import "./photo-info-box.css";
+
+interface Props {
+  title: string;
+  lines: string[];
+  photos: {
+    src: ImageMetadata;
+    location: string;
+    category?: string;
+    description?: string;
+    mapUrl?: string;
+  }[];
+}
+const { title, lines, photos } = Astro.props;
+---
+
+<InfoBox title={title} lines={lines} class="photo-info-box">
+  {
+    photos.length > 0 && (
+      <visitor-carousel aria-label={title} aria-roledescription="karusell">
+        <div class="slides" aria-live="off">
+          {photos.map((photo, index) => (
+            <figure hidden={index !== 0}>
+              <button
+                type="button"
+                class="photo-navigation"
+                aria-label="Forrige bilde på venstre tredjedel, neste bilde på resten. Bruk piltastene eller Enter."
+                disabled={photos.length < 2}
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.location}
+                  width={900}
+                  format="webp"
+                  quality={80}
+                  loading="eager"
+                  draggable="false"
+                />
+              </button>
+              <figcaption>
+                {photo.category && <h4 class="category page-subsubtitle">{photo.category}</h4>}
+                {photo.description && <p class="description page-text-small">{photo.description}</p>}
+                <p class="location page-text-small">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0ZM15 10a3 3 0 1 0-6 0 3 3 0 0 0 6 0Z"
+                    />
+                  </svg>
+                  {photo.mapUrl ? (
+                    <a href={photo.mapUrl} target="_blank" rel="noopener noreferrer">
+                      {photo.location}
+                    </a>
+                  ) : (
+                    <span>{photo.location}</span>
+                  )}
+                </p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        {photos.length > 1 && (
+          <div class="carousel-controls" role="group" aria-label="Bildenavigasjon">
+            <button type="button" class="carousel-arrow" data-step="-1" aria-label="Forrige bilde">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m16 4-8 8 8 8" /></svg>
+            </button>
+            <div class="slide-indicators">
+              {photos.map((_, index) => (
+                <button type="button" class="slide-indicator" data-slide={index}
+                  aria-label={`Vis bilde ${index + 1} av ${photos.length}`}
+                  aria-current={index === 0 ? "true" : "false"}>
+                  <span></span>
+                </button>
+              ))}
+            </div>
+            <button type="button" class="carousel-arrow" data-step="1" aria-label="Neste bilde">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 4 8 8-8 8" /></svg>
+            </button>
+          </div>
+        )}
+      </visitor-carousel>
+    )
+  }
+</InfoBox>
+
+<script>
+  // Long enough to read a caption before the slide changes.
+  const AUTOPLAY_INTERVAL_MS = 7000;
+  const TRANSITION_DURATION_MS = 800;
+  const TAP_MOVEMENT_LIMIT_PX = 10;
+  const SWIPE_THRESHOLD_PX = 40;
+
+  type Direction = -1 | 1;
+  type PointerPress = { id: number; x: number; y: number };
+
+  class VisitorCarousel extends HTMLElement {
+    private slides: HTMLElement[] = [];
+    private slideContainer!: HTMLElement;
+    private reducedMotion!: MediaQueryList;
+    private canHover!: MediaQueryList;
+    private currentIndex = 0;
+    private events?: AbortController;
+    private sizeObserver?: ResizeObserver;
+    private sizingFrame?: number;
+    private autoplayTimer?: number;
+    private transitionTimer?: number;
+
+    connectedCallback() {
+      this.slides = Array.from(this.querySelectorAll("figure"));
+      this.currentIndex = Math.max(0, this.slides.findIndex((slide) => !slide.hidden));
+      this.slideContainer = this.querySelector<HTMLElement>(".slides")!;
+      this.observePhotoSize();
+      if (this.slides.length < 2) return;
+
+      this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      this.canHover = window.matchMedia("(hover: hover)");
+      this.events = new AbortController();
+      this.querySelectorAll<HTMLButtonElement>(".photo-navigation").forEach((button) => {
+        this.bindNavigationEvents(button);
+      });
+      this.bindControls();
+      this.startAutoplay();
+    }
+
+    disconnectedCallback() {
+      this.events?.abort();
+      window.clearInterval(this.autoplayTimer);
+      window.clearTimeout(this.transitionTimer);
+      this.sizeObserver?.disconnect();
+      if (this.sizingFrame !== undefined) window.cancelAnimationFrame(this.sizingFrame);
+      this.slides.forEach((slide) => slide.removeAttribute("data-leaving"));
+      this.querySelectorAll("[data-slide]").forEach((button) => button.removeAttribute("data-leaving"));
+    }
+
+    private observePhotoSize() {
+      const box = this.closest<HTMLElement>(".photo-info-box");
+      if (!box) return;
+
+      const controls = this.querySelector<HTMLElement>(".carousel-controls");
+      let previousOverhead = -1;
+      const fitPhoto = () => {
+        const boxStyles = getComputedStyle(box);
+        const frameStyles = getComputedStyle(this.slideContainer);
+        const frameInsets = parseFloat(frameStyles.paddingTop) + parseFloat(frameStyles.paddingBottom) +
+          parseFloat(frameStyles.borderTopWidth) + parseFloat(frameStyles.borderBottomWidth);
+        const controlsHeight = controls
+          ? controls.getBoundingClientRect().height + parseFloat(getComputedStyle(controls).marginTop)
+          : 0;
+        const captionHeights = this.slides.map((slide) => {
+          const caption = slide.querySelector("figcaption")!;
+          return caption.getBoundingClientRect().height + parseFloat(getComputedStyle(caption).marginTop);
+        });
+        // Fit the photo and what follows it, not the title and intro, which scroll away.
+        // Measure only content independent of photo size to avoid resize feedback at browser zoom levels.
+        const overhead = Math.ceil(Math.max(...captionHeights) + frameInsets + controlsHeight + parseFloat(boxStyles.paddingBottom));
+        if (overhead === previousOverhead) return;
+        previousOverhead = overhead;
+        this.style.setProperty("--box-overhead", `${overhead}px`);
+      };
+      this.sizeObserver = new ResizeObserver(() => {
+        if (this.sizingFrame !== undefined) window.cancelAnimationFrame(this.sizingFrame);
+        this.sizingFrame = window.requestAnimationFrame(fitPhoto);
+      });
+      this.sizeObserver.observe(box);
+      fitPhoto();
+    }
+
+    private startAutoplay() {
+      window.clearInterval(this.autoplayTimer);
+      this.autoplayTimer = window.setInterval(() => {
+        if (this.reducedMotion.matches || document.hidden || this.isPaused()) return;
+        this.slideContainer.setAttribute("aria-live", "off");
+        this.showSlide(this.currentIndex + 1);
+      }, AUTOPLAY_INTERVAL_MS);
+    }
+
+    // Hold the current slide while a mouse rests on it or keyboard focus is inside,
+    // so captions and map links can be read and reached.
+    private isPaused() {
+      return (this.canHover.matches && this.matches(":hover")) ||
+        this.querySelector(":focus-visible") !== null;
+    }
+
+    private move(direction: Direction) {
+      this.slideContainer.setAttribute("aria-live", "polite");
+      this.showSlide(this.currentIndex + direction);
+      this.startAutoplay();
+    }
+
+    private showSlide(index: number) {
+      const previousIndex = this.currentIndex;
+      this.currentIndex = (index + this.slides.length) % this.slides.length;
+      window.clearTimeout(this.transitionTimer);
+      this.slides.forEach((slide, slideIndex) => {
+        slide.removeAttribute("data-leaving");
+        slide.hidden = slideIndex !== this.currentIndex;
+      });
+      const indicators = this.querySelectorAll<HTMLButtonElement>("[data-slide]");
+      indicators.forEach((button, slideIndex) => {
+        button.removeAttribute("data-leaving");
+        button.setAttribute("aria-current", String(slideIndex === this.currentIndex));
+      });
+      if (previousIndex === this.currentIndex || this.reducedMotion.matches) return;
+
+      const previousSlide = this.slides[previousIndex];
+      const previousIndicator = indicators[previousIndex];
+      previousSlide.setAttribute("data-leaving", "");
+      previousIndicator.setAttribute("data-leaving", "");
+      this.transitionTimer = window.setTimeout(() => {
+        previousSlide.removeAttribute("data-leaving");
+        previousIndicator.removeAttribute("data-leaving");
+      }, TRANSITION_DURATION_MS);
+    }
+
+    private directionAt(element: HTMLElement, x: number): Direction {
+      const bounds = element.getBoundingClientRect();
+      return x < bounds.left + bounds.width / 3 ? -1 : 1;
+    }
+
+    private bindControls() {
+      const options = { signal: this.events!.signal };
+      this.querySelectorAll<HTMLButtonElement>("[data-step]").forEach((button) => {
+        button.addEventListener("click", () => {
+          this.move(Number(button.dataset.step) as Direction);
+        }, options);
+      });
+      this.querySelectorAll<HTMLButtonElement>("[data-slide]").forEach((button) => {
+        button.addEventListener("click", () => {
+          this.slideContainer.setAttribute("aria-live", "polite");
+          this.showSlide(Number(button.dataset.slide));
+          this.startAutoplay();
+        }, options);
+      });
+    }
+
+    private bindNavigationEvents(button: HTMLButtonElement) {
+      const options = { signal: this.events!.signal };
+      let press: PointerPress | undefined;
+      button.addEventListener("pointerdown", (event) => {
+        if (!event.isPrimary || event.button !== 0) return;
+        press = { id: event.pointerId, x: event.clientX, y: event.clientY };
+        button.setPointerCapture(event.pointerId);
+      }, options);
+      button.addEventListener("pointerup", (event) => {
+        if (!press || press.id !== event.pointerId) return;
+        this.finishPointerNavigation(button, event, press);
+        press = undefined;
+      }, options);
+      button.addEventListener("pointercancel", () => {
+        press = undefined;
+      }, options);
+      button.addEventListener("click", (event) => {
+        // Pointer navigation runs on release; clicks retain keyboard activation.
+        event.preventDefault();
+        if (event.detail === 0 && !(event instanceof PointerEvent && event.pointerType)) this.move(1);
+      }, options);
+      button.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        this.move(event.key === "ArrowLeft" ? -1 : 1);
+      }, options);
+    }
+
+    private finishPointerNavigation(button: HTMLButtonElement, event: PointerEvent, press: PointerPress) {
+      const deltaX = event.clientX - press.x;
+      const deltaY = event.clientY - press.y;
+      const isHorizontalSwipe = Math.abs(deltaX) >= SWIPE_THRESHOLD_PX && Math.abs(deltaX) > Math.abs(deltaY);
+      const isTap = Math.abs(deltaX) <= TAP_MOVEMENT_LIMIT_PX && Math.abs(deltaY) <= TAP_MOVEMENT_LIMIT_PX;
+      if (isHorizontalSwipe) {
+        this.move(deltaX < 0 ? 1 : -1);
+      } else if (isTap) {
+        this.move(this.directionAt(button, event.clientX));
+      }
+    }
+  }
+
+  if (!customElements.get("visitor-carousel")) {
+    customElements.define("visitor-carousel", VisitorCarousel);
+  }
+</script>
