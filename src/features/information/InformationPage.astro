@@ -36,11 +36,6 @@ const infoItems: {
       "Vi ønsker oss en barnefri feiring og håper dere har mulighet til å nyte en kveld uten barn sammen med oss! Dersom det er behov for å ha med små barn i vielsen, gi oss beskjed."
     ],
   },
-  {
-    title: "Spørsmål",
-    illustration: "quill",
-    lines: ["Ikke nøl med å ta kontakt med brudeparet dersom du har spørsmål."],
-  },
 ];
 
 const contacts = [
@@ -56,6 +51,7 @@ const contacts = [
     ))}
     <InfoBox title="Kontakt" lines={[]} illustration={illustrations.envelope}>
       <Fragment slot="text">
+        <p>Ikke nøl med å ta kontakt med brudeparet dersom du har spørsmål.</p>
         {
           contacts.map((contact) => (
             <p>
