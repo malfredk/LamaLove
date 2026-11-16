@@ -70,7 +70,6 @@ need to request a separate clean-code pass.
   complexity, unintended behavior changes, and CSS scope changes. Address relevant
   issues as part of the task rather than deferring an obvious cleanup.
 - Run `npm run build` for Astro, component, and stylesheet changes.
-- Run `npm run test:weather` for weather-feature or weather-entry-point changes.
 - Use targeted behavior checks for substantial refactors, including relevant
   edge cases. Prefer existing tests; add tests for meaningful risks rather than
   mirroring implementation details. Do not call live APIs just to check a refactor.

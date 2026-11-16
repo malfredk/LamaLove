@@ -3,7 +3,7 @@
 :root {
     --font-family: "Cormorant Garamond", serif;
 
-    /* Normal text, including paragraphs, captions, and weather. */
+    /* Normal text, including paragraphs and captions. */
     --page-text-size: 1.18rem;
     --page-text-small-size: calc(var(--page-text-size) * 0.7);
     --page-text-weight: 500;

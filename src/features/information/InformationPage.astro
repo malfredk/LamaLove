@@ -2,13 +2,11 @@
 import Layout from "../../common/layouts/Layout.astro";
 import InfoBoxes from "../../common/components/InfoBoxes.astro";
 import InfoBox from "../../common/components/InfoBox.astro";
-import WeatherForecast from "./weather/WeatherForecast.astro";
 import { illustrations, type IllustrationName } from "./illustrations";
 
 const infoItems: {
   title: string;
   lines: string[];
-  forecast?: boolean;
   illustration?: IllustrationName;
 }[] = [
   {
@@ -25,11 +23,6 @@ const infoItems: {
       "Vi ønsker oss først og fremst en hyggelig feiring med våre venner og kjære. Vi vet at mange av dere reiser langt for å være med oss, og det er i seg selv en fin gave.",
       "Ønsker du å gi noe, setter vi stor pris på bidrag til bryllupsreisen vår. Vi legger også ut en ønskeliste her når det nærmer seg.",
     ],
-  },
-  {
-    title: "Vær",
-    forecast: true,
-    lines: [],
   },
   {
     title: "Toastmaster",
@@ -59,8 +52,7 @@ const contacts = [
 <Layout title="L&M" activePage="information">
   <InfoBoxes items={[]}>
     {infoItems.map((item) => (
-      item.forecast ? <WeatherForecast /> :
-        <InfoBox title={item.title} lines={item.lines} illustration={item.illustration ? illustrations[item.illustration] : undefined} />
+      <InfoBox title={item.title} lines={item.lines} illustration={item.illustration ? illustrations[item.illustration] : undefined} />
     ))}
     <InfoBox title="Kontakt" lines={[]} illustration={illustrations.envelope}>
       <Fragment slot="text">

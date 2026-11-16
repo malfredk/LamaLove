@@ -4,8 +4,6 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
-  schedule:
-    - cron: '17 */6 * * *'
 
 permissions:
   contents: read
@@ -15,23 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    outputs:
-      publish: ${{ steps.window.outputs.publish }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-      - id: window
-        env:
-          EVENT: ${{ github.event_name }}
-        run: node src/features/information/weather/check-weather-window.mjs
-
   build:
-    needs: check
-    if: needs.check.outputs.publish == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -44,16 +26,7 @@ jobs:
           cache: npm
       - uses: actions/configure-pages@v5
         id: pages
-      - uses: actions/cache@v4
-        with:
-          path: |
-            .cache/weather-api.json
-            src/features/information/weather/weather.json
-          key: wedding-weather-v2-${{ hashFiles('src/common/config/wedding.mjs', 'src/features/information/weather/config.mjs') }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: wedding-weather-v2-${{ hashFiles('src/common/config/wedding.mjs', 'src/features/information/weather/config.mjs') }}-
       - run: npm ci
-      - run: npm run test:weather
-      - run: npm run weather:update
       - run: npm run build
         env:
           SITE_URL: ${{ steps.pages.outputs.origin }}

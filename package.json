@@ -6,8 +6,6 @@
     "node": ">=22.23.4"
   },
   "scripts": {
-    "weather:update": "node src/features/information/weather/update-weather.mjs",
-    "test:weather": "node --test src/features/information/weather/weather.test.mjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
